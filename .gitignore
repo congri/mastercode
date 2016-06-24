@@ -1,0 +1,8 @@
+#temporary files
+*.m~
+
+#directories
+data
+
+#data files
+*.mat
