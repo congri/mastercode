@@ -1,2 +1,2 @@
-%addpath script for aSamples
-addpath('~/matlab/projects/mastercode');
+%add main path for cluster execution
+addpath('~/matlab/projects/masterCode');

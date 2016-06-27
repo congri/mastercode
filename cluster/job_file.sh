@@ -4,5 +4,5 @@
 #PBS -e /home/constantin/OEfiles
 #PBS -m abe
 #PBS -M mailscluster@gmail.com
-cd ~/matlab/projects/mastercode
+cd ~/matlab/projects/masterCode
 /home/constantin/Software/Matlab/bin/matlab -nodesktop -nodisplay -nosplash -r "adddir ; main ; quit;"
