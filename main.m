@@ -1,7 +1,5 @@
 %Main script for gradient based MCMC for EM-optimization
 
-%cluster message :)
-
 clear all;
 %load params
 addpath('params')
