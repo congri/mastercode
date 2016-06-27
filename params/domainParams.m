@@ -15,7 +15,7 @@ domain.Ny = domain.height/domain.elementLength;
 domain.totalNodeNumber = (domain.Nx + 1)*(domain.Ny + 1);
 %Nodal coordiante array
 %holds global nodal coordinates in the first two lines (x and y).
-%In the thrid line, the equation number is stored
+%In the third line, the equation number is stored
 domain.nodalCoordinates = get_coord(domain, physical);
 %globalNodeNumber holds the global node number, given the element number as row
 %and the local node number as column indices
@@ -30,6 +30,9 @@ for i = 1:Sg(1)
     end
 end
 clear Sg i j;
+%equation number and local node number precomputation for sparse stiffness
+%assembly
+[domain.Equations, domain.LocalNode] = get_equations(domain.nElements, domain.lm);
 %lc gives node coordinates, taking in element number and local node
 %number
 domain.lc = get_loc_coord(domain);

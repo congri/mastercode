@@ -55,7 +55,11 @@ for e = 1:domain.nElements
 end
 
 %Global stiffness matrix
-Out.globalStiffness = get_glob_stiff(domain,Out.localStiffness);
+
+% Out.globalStiffness = get_glob_stiff(domain,Out.localStiffness);
+Out.globalStiffness = get_glob_stiff2(domain, Out.localStiffness);
+
+
 %Global force vector
 Out.globalForce = get_glob_force(domain,physical,Out.localStiffness);
 
