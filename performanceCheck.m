@@ -1,9 +1,8 @@
-
-A = rand(5);
-tic
-A(1:5,1:5)
-toc
+s = 1e4;
 
 tic
-A
-toc
+for i = 1:s
+    a = logphiInv(-2,100);
+end
+t = toc
+    

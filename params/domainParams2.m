@@ -24,4 +24,4 @@ for l = 1:conductivity.dim
     end
     domain.exponent(:,l) = ((-1/(2*domain.gaussVariance))*xDiffSq)';
 end
-clear xDiff xDiffSq l e;
+clear xDiff xDiffSq l e gaussLocation;

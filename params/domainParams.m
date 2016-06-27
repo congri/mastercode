@@ -40,8 +40,8 @@ domain.coord_mat = get_el_coord(domain);
 domain.coordMatSquared = domain.coord_mat(1,:)'*domain.coord_mat(2,:);
 domain.nEquations = max(domain.nodalCoordinates(3,:));
 %Total number of equations
-neq = max(domain.nodalCoordinates(3,:));
-domain.Kinit = zeros(neq,neq);
+neq = double(max(domain.nodalCoordinates(3,:)));
+domain.Kinit = spalloc(neq,neq,3*neq);
 for k = 1:domain.nElements
     for i = 1:4
         %essential boundary (yes or no) given local node and element number

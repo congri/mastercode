@@ -192,5 +192,8 @@ end
     end
 end
 
+%single conversion for economic use of memory
+nc = single(nc);
+
 end
 

@@ -11,7 +11,7 @@ xi2 = 1/sqrt(3);
 eta1 = -1/sqrt(3);
 eta2 = 1/sqrt(3);
 
-fs = zeros(4,domain.nElements,'single');
+fs = sparse(4,domain.nElements);
 
 for e = 1:domain.nElements
     %short hand notation. Coordinates of local nodes
@@ -27,10 +27,12 @@ for e = 1:domain.nElements
     yII = 0.5*(y1 + y4) + 0.5*eta2*(y4 - y1);
 
 
-    fs(1,e) = s(e)*(1/Ae)*((xI - x2)*(yI - y4) + (xII - x2)*(yII - y4) + (xI - x2)*(yII - y4) + (xII - x2)*(yI - y4));
-    fs(2,e) = -s(e)*(1/Ae)*((xI - x1)*(yI - y4) + (xII - x1)*(yII - y4) + (xI - x1)*(yII - y4) + (xII - x1)*(yI - y4));
-    fs(3,e) = s(e)*(1/Ae)*((xI - x1)*(yI - y1) + (xII - x1)*(yII - y1) + (xI - x1)*(yII - y1) + (xII - x1)*(yI - y1));
-    fs(4,e) = -s(e)*(1/Ae)*((xI - x2)*(yI - y1) + (xII - x2)*(yII - y1) + (xI - x2)*(yII - y1) + (xII - x2)*(yI - y1));
+    if(s(e) == 0)
+        fs(1,e) = s(e)*(1/Ae)*((xI - x2)*(yI - y4) + (xII - x2)*(yII - y4) + (xI - x2)*(yII - y4) + (xII - x2)*(yI - y4));
+        fs(2,e) = -s(e)*(1/Ae)*((xI - x1)*(yI - y4) + (xII - x1)*(yII - y4) + (xI - x1)*(yII - y4) + (xII - x1)*(yI - y4));
+        fs(3,e) = s(e)*(1/Ae)*((xI - x1)*(yI - y1) + (xII - x1)*(yII - y1) + (xI - x1)*(yII - y1) + (xII - x1)*(yI - y1));
+        fs(4,e) = -s(e)*(1/Ae)*((xI - x2)*(yI - y1) + (xII - x2)*(yII - y1) + (xI - x2)*(yII - y1) + (xII - x2)*(yI - y1));
+    end
 end
 
 end

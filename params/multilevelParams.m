@@ -1,15 +1,15 @@
 %params specificially for the multi level model
 
-plt = 0        %plotu_s - u_f regression?
+plt = 1        %plotu_s - u_f regression?
 ck = 0         %check?
 genTrainingData = 1        %generate new accurate data?
 genTestData = 1            %generate new approximate data?
 
 nSurrogates = 1;
 
-nData = 30;                %number of training data
+nData = 500;                %number of training data
 nTest = 10;                %number of test data
-nDataFast = 5e3;           %number of fast solver iterations for training data; to construct equally spaced training data
+nDataFast = 500;           %number of fast solver iterations for training data; to construct equally spaced training data
 
 bFunOpt.type = 'rbf+trend';
 bFunOpt.nBasis = 5;

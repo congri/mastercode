@@ -31,19 +31,18 @@ B3 = (1/4)*[yI-y4 y4-yI yI-y1 y1-yI; xII-x2 x1-xII xII-x1 x2-xII];
 B4 = (1/4)*[yII-y4 y4-yII yII-y1 y1-yII; xI-x2 x1-xI xI-x1 x2-xI];
 Bvec = [B1; B2; B3; B4];
 BvecT = Bvec';
-Z = zeros(2,2);
 
+ivec = [1; 2; 1; 2; 3; 4; 3; 4; 5; 6; 5; 6; 7; 8; 7; 8];
+jvec = [1; 1; 2; 2; 3; 3; 4; 4; 5; 5; 6; 6; 7; 7; 8; 8];
 function [k] = get_loc_stiff2(D)
 %Gives the local stiffness matrix
+vvec = repmat(D(:),4,1);
 
-Dmat = [D Z Z Z; Z D Z Z; Z Z D Z; Z Z Z D];
+Dmat = sparse(ivec, jvec, vvec, 8, 8);
 
 k = BvecT*Dmat*Bvec;
+
 end
-
-
-
-
 
 
 

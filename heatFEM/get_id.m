@@ -10,5 +10,7 @@ init = find(eqs == 1);
 id(1:(init-1),:) = [];
 
 id = id(:,2);
+%convert to integer for efficient memory use
+id = int16(id);
 end
 

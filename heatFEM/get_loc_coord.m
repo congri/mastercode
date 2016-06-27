@@ -2,7 +2,7 @@ function [lc] = get_loc_coord(d)
 %Gives arrays taking the element and local node number and
 %giving the nodal coordinate
 
-lc = zeros(d.nElements,4,2);
+lc = zeros(d.nElements,4,2);       %single precision for economic memory
 for e = 1:d.nElements
         %x coordinates
         lc(e,1,1) = (e-1)*d.elementLength - floor((e - 1)/d.Nx)*d.Nx*d.elementLength;

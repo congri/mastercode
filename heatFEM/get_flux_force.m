@@ -1,7 +1,7 @@
 function [fh] = get_flux_force(domain, physical)
 %Contribution to local force due to heat flux
 
-fh = zeros(4,domain.nElements);
+fh = sparse(4,domain.nElements);
 
 %Gauss points
 xi1 = -1/sqrt(3);

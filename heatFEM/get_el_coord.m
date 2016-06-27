@@ -14,5 +14,8 @@ y = (ny + .5)*domain.elementLength;
 
 coord_mat = [x; y; n_el];
 
+%convert to single for efficient memory usage
+coord_mat = single(coord_mat);
+
 
 end

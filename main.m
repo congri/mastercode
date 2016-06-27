@@ -31,7 +31,7 @@ elseif(strcmp(modelType,'multilevel'))
     trainMultilevel;
     etaArray = mvnrnd(postMean, postCov, nSurrogates);
     
-%     error('model trained') %to stop after model training
+    error('model trained') %to stop after model training
 
     
 else
@@ -39,9 +39,6 @@ else
     error('Unknown model type')
     
 end
-
-
-
 
 disp('Started EM optimization...');
 t = tic;
@@ -54,7 +51,8 @@ prealloc;
 %initial value for a in MCMC
 if(~exist('aStart', 'var'))
     %if there was no thermalization then use regularized mu
-    aStart = (conductivity.covar_aInv + conductivity.muRegularization*eye(conductivity.dim))*conductivity.covar_a*conductivity.mu_a';
+    aStart = (conductivity.covar_aInv + conductivity.muRegularization*eye(conductivity.dim))...
+        *conductivity.covar_a*conductivity.mu_a';
     aStart = aStart';
 end
 %2 aStart for cold and warm markov chain
@@ -87,7 +85,6 @@ for nS = 1:nSurrogates
         if(nIterations <= explorationSteps)
             conductivity.covar_a = explorationFactor^(explorationSteps - nIterations)*fixedcovar_a;
         end
-        clear fixedcovar_a;
 
         nIterations = nIterations + 1;
         %Total number of MCMC samples in the subsequent step
@@ -136,7 +133,7 @@ for nS = 1:nSurrogates
 
             swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
                 out(2).pExponent - out(1).pExponent)
-            Metropolis = exp(swapLogMetropolis); clear swapLogMetropolis;
+            Metropolis = exp(swapLogMetropolis);
             r = rand;
             if(r < Metropolis)
                disp('State swapping accepted') 
@@ -152,10 +149,8 @@ for nS = 1:nSurrogates
                optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
             end
             beta = optim(2).beta
-            clear r Metropolis;
             
         end
-        clear i;
 
         mu_a_old = conductivity.mu_a;
 
@@ -168,25 +163,24 @@ for nS = 1:nSurrogates
 %         conductivity.mu_a = mu_a_old;
 %         conductivity.mu_a(component) = mu; clear mu;
         conductivity.mu_a
-        clear ans;
 
         covar_a_old = conductivity.covar_a;
 
         muArray(nIterations,:) = conductivity.mu_a;
-        logUmeanArray(nIterations) = logUMean; clear logUMean;
-        q_meanArray(nIterations) = q_mean; clear q_mean;
-        grad_q_meanArray(nIterations,:) = grad_q_mean; clear grad_q_mean;
-        gradLogUMeanArray(nIterations,:) = gradLogUMean; clear gradLogUMean;
+        logUmeanArray(nIterations) = logUMean;
+        q_meanArray(nIterations) = q_mean; 
+        grad_q_meanArray(nIterations,:) = grad_q_mean; 
+        gradLogUMeanArray(nIterations,:) = gradLogUMean; 
 
         %convergence condition
-        n_diff_mu_EM = norm(mu_a_old - conductivity.mu_a); clear mu_a_old;
+        n_diff_mu_EM = norm(mu_a_old - conductivity.mu_a); 
         mu_convergence = n_diff_mu_EM/conductivity.dim
         nIterations
         n_diff_Sigma_EM = norm(covar_a_old - conductivity.covar_a);
-        clear covar_a_old;
         muDiffArray(nIterations) = n_diff_mu_EM;
         if(((mu_convergence < optim(1).muDifferenceThreshold &&...
-                n_diff_Sigma_EM/(conductivity.dim^2) < optim(1).covarDifferenceThreshold) && nIterations > explorationSteps)...
+                n_diff_Sigma_EM/(conductivity.dim^2) < optim(1).covarDifferenceThreshold) &&...
+                nIterations > explorationSteps)...
                 || nIterations > optim(1).maxIterations)
             converged = 1;
         end
@@ -197,7 +191,11 @@ for nS = 1:nSurrogates
     muOptSurr(nS,:) = conductivity.mu_a;
     
 end
-clear nS converged;
+clear nS converged swapLogMetropolis fixedcovar_a r Metropolis...
+  ans logUMean q_mean grad_q_mean gradLogUMean mu_a_old covar_a_old;
+
+
+
 
 computationTime = toc(t); clear t;
 

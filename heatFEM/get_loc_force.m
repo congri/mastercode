@@ -6,7 +6,7 @@ function [f] = get_loc_force(e, domain, kin, physical)
 k = kin(:,:,e);
 
 %Boundary value temperature of element e
-Tb = zeros(4,1);
+Tb = sparse(4,1);
 Tbflag = 0;
 for i = 1:4
     if(~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i))))
