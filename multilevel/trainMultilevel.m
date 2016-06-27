@@ -22,7 +22,7 @@ if(genTrainingData)
     clear domain;
     domain.nElements = nFast; %number of finite elements
     paramsNewDomain;
-    [approxExp, approx_u] =...
+    [~, approx_u] =...
         generateData(inputData, physical, domain, conductivity, nDataFast, 'approxData');
     
     [approx_u, inputData] = pickData(approx_u, inputData, nData);
@@ -38,7 +38,7 @@ else
     accurateExp = temp.logU;
     accurate_u = temp.transformedU;
     temp = load('./data/multilevel/approxData.mat');
-    approxExp = temp.logU;
+%     approxExp = temp.logU;
     approx_u = temp.transformedU;
     temp = load('./data/multilevel/input.mat');
     inputData = temp.inputData;
@@ -135,14 +135,13 @@ accurate_uTest = accurate_uTest(index);
 accurateExpTest = accurateExpTest(index);
 clear index;
 
-approxInf = linspace(min(approx_u) - .3*abs(min(approx_u)), max(approx_u) + .3*abs(max(approx_u)), 500);
+approxInf = linspace(min(approx_u) - .3*abs(min(approx_u)), max(approx_u) + .3*abs(min(approx_u)), 500);
 % [predMean, predVar] = predParams(postMean, postCov, approxInf', sigmaNoise, bFunH);
 
 
 
 if(plt)
     
-  approxExpPred = logphi(approxInf);
     figure
 %     erp = shadedErrorBar(approxInf,predMean,predVar)
     hold on
@@ -154,7 +153,7 @@ if(plt)
         plot(approxInf, samp,'k')
     end
     hold off
-    clear eta;
+    clear eta approxInf samp;
     
 end
 clear plt;

@@ -7,7 +7,7 @@ function [el] = get_element(domain, physical)
 N_points = length(physical.T_target);
 
 %Go through all points and determine elements
-el = zeros(N_points,1);
+el = zeros(N_points,1,'int16');
 for i = 1:N_points
    row = floor(physical.x(i,2)/domain.elementLength);
    column = ceil(physical.x(i,1)/domain.elementLength);

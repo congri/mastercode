@@ -13,7 +13,7 @@ addpath('aux')
 addpath('util')
 params;
 modelType = 'multilevel';   %which model? reference/multilevel
-sv = false      %save?
+sv = true      %save?
 
 %define output function handle giving log U, grad log U and eventually U
 if(strcmp(modelType,'reference'))
@@ -33,7 +33,7 @@ elseif(strcmp(modelType,'multilevel'))
     trainMultilevel;
     etaArray = mvnrnd(postMean, postCov, nSurrogates);
     
-    error('model trained') %to stop after model training
+%     error('model trained') %to stop after model training
 
     
 else
@@ -214,7 +214,7 @@ end
 if(sv)
     disp('saving...')
     filename = datestr(now,30);
-    dir = './data/dim9/comp6';
+    dir = './data/dim9/all';
     mkdir(dir);
     filename = strcat(dir,'/optim',modelType,filename);
     save(filename,'-v7.3');

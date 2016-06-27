@@ -11,7 +11,7 @@ xi2 = 1/sqrt(3);
 eta1 = -1/sqrt(3);
 eta2 = 1/sqrt(3);
 
-fs = zeros(4,domain.nElements);
+fs = zeros(4,domain.nElements,'single');
 
 for e = 1:domain.nElements
     %short hand notation. Coordinates of local nodes

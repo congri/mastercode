@@ -1,8 +1,6 @@
 function [k] = get_loc_stiff(e,lc,D)
 %Gives the local stiffness matrix
 
-%Heat conductivity matrix in that element
-D = D(:,:,e);
 %short hand notation
 x1 = lc(e,1,1);
 x2 = lc(e,2,1);

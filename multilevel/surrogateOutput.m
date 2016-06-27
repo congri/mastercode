@@ -8,7 +8,7 @@ else
     logU = cont_ref_output(lambda, input, conductivity, physical, domain);
 end
 
-uf = logphiInv(logU,-20);
+uf = logphiInv(logU, 0);
 [phi, dphi] = bFunH(uf);
 uPred = eta*phi;
 % Q = uPred/(sqrt(1 + sigmaNoise^2));

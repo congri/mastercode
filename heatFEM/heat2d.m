@@ -3,11 +3,56 @@ function [Out] = heat2d(domain, physical, control, D)
 %Gives back temperature on point x
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%nested function for performance; B-matrices should be constant for each
+%element
+%short hand notation
+x1 = domain.lc(1,1,1);
+x2 = domain.lc(1,2,1);
+y1 = domain.lc(1,1,2);
+y4 = domain.lc(1,4,2);
+
+%Gauss points
+xi1 = -1/sqrt(3);
+xi2 = 1/sqrt(3);
+eta1 = -1/sqrt(3);
+eta2 = 1/sqrt(3);
+    
+%Coordinate transformation
+xI = 0.5*(x1 + x2) + 0.5*xi1*(x2 - x1);
+xII = 0.5*(x1 + x2) + 0.5*xi2*(x2 - x1);
+yI = 0.5*(y1 + y4) + 0.5*eta1*(y4 - y1);
+yII = 0.5*(y1 + y4) + 0.5*eta2*(y4 - y1);
+
+%Assuming bilinear shape functions here!!!
+B1 = (1/4)*[yI-y4 y4-yI yI-y1 y1-yI; xI-x2 x1-xI xI-x1 x2-xI];
+B2 = (1/4)*[yII-y4 y4-yII yII-y1 y1-yII; xII-x2 x1-xII xII-x1 x2-xII];
+%Do not forget cross terms
+B3 = (1/4)*[yI-y4 y4-yI yI-y1 y1-yI; xII-x2 x1-xII xII-x1 x2-xII];
+B4 = (1/4)*[yII-y4 y4-yII yII-y1 y1-yII; xI-x2 x1-xI xI-x1 x2-xI];
+Bvec = [B1; B2; B3; B4];
+BvecT = Bvec';
+Z = zeros(2,2);
+
+function [k] = get_loc_stiff2(D)
+%Gives the local stiffness matrix
+
+Dmat = [D Z Z Z; Z D Z Z; Z Z D Z; Z Z Z D];
+
+k = BvecT*Dmat*Bvec;
+end
+
+
+
+
+
+
+
+
 
 %Compute local stiffness matrices, once and for all
 Out.localStiffness = zeros(4,4,domain.nElements);
-for i = 1:domain.nElements
-    Out.localStiffness(:,:,i) = get_loc_stiff(i,domain.lc,D);
+for e = 1:domain.nElements
+    Out.localStiffness(:,:,e) = get_loc_stiff2(D(:,:,e));
 end
 
 %Global stiffness matrix

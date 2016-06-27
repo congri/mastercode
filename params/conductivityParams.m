@@ -23,13 +23,13 @@ if(strcmp(domain.basisFunctionType, 'polynomial'))
         D(:,:,i) = 1e-5*eye(2); %only isotropic material
     end
     for e = 1:domain.nElements
-        conductivity.localStiffnessOffset(:,:,e) = get_loc_stiff(e,domain.lc,D);
+        conductivity.localStiffnessOffset(:,:,e) = get_loc_stiff(e, domain.lc, D(:,:,e));
     end
 elseif(strcmp(domain.basisFunctionType, 'gauss'))
     for i = 1:domain.nElements
         D(:,:,i) = eye(2); %only isotropic material
     end
-    conductivity.localStiffnessOffset = get_loc_stiff(1,domain.lc,D);
+    conductivity.localStiffnessOffset = get_loc_stiff(1, domain.lc, D(:,:,1));
 else
     error('Unknown basis function for lambda')
 end

@@ -4,7 +4,7 @@ function [approx_uOut, inputDataOut] = pickData(approx_uIn, inputDataIn, nData)
 hi = max(approx_uIn);
 lo = min(approx_uIn);
 
-p = .7;
+p = .9;
 centers = linspace(p*hi + (1 - p)*lo,hi,nData);
 
 approx_uOut = zeros(nData,1);
