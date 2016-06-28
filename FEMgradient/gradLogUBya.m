@@ -1,6 +1,6 @@
 function [dlogU_da] = gradLogUBya(FEMout, conductivity, domain, physical, a)
 %Computes the gradient d log U(a)/d a
-[gradK, gradF] = gradKgradF(FEMout, conductivity, domain, a);
+[grad, gradF] = gradKgradF(FEMout, conductivity, domain, a);
 
 
 %compute (d/dT) log U(T), where T are natural node temperatures
@@ -21,7 +21,7 @@ adjoints = FEMout.globalStiffness\dLogU_dT'; %adjoints seem to be correct 18/02/
 %compute d log U(a)/d a
 dlogU_da = zeros(1,conductivity.dim);
 for l = 1:conductivity.dim
-    dlogU_da(l) = -adjoints'*(gradK(:,:,l)*FEMout.naturalTemperatures - gradF(:,l));
+    dlogU_da(l) = -adjoints'*(grad(l).K*FEMout.naturalTemperatures - gradF(:,l));
 end    
 
 

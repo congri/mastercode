@@ -9,20 +9,23 @@ function [f] = get_loc_force_gradient(domain, kGradient)
     %k = kGradient(:,:,e);
     
     f = zeros(4,domain.nElements);
+    Tb = zeros(4,1);
+    Tbflag = 0;
     for e = 1:domain.nElements
         %Boundary value temperature of element e
-        Tb = zeros(4,1);
-        Tbflag = 0;
         for i = 1:4
-            if(~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i))))
+%             if(~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i))))
+            if(domain.essNode(e,i))
                 Tb(i) = domain.nodalCoordinates(4,domain.globalNodeNumber(e,i));
-                Tbflag = 1;
+                Tbflag = true;
             end
         end
 
 
         if(Tbflag)
             f(:,e) = -kGradient(:,:,e)*Tb;
+            Tb = zeros(4,1);
+            Tbflag = false;
         end
     end
 
