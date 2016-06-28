@@ -1,11 +1,11 @@
 %params specificially for the multi level model
 
-plt = 1        %plotu_s - u_f regression?
+plt = 0        %plotu_s - u_f regression?
 ck = 0         %check?
 genTrainingData = 1        %generate new accurate data?
 genTestData = 1            %generate new approximate data?
 
-nSurrogates = 1;
+nSurrogates = 3;
 
 nData = 50;                %number of training data
 nTest = 10;                %number of test data
@@ -22,7 +22,7 @@ priorCovInv = inv(priorCov);
 
 %nElements contains number of elements of top level code in 1 and fastest
 %code in last element
-nFast = 100;
+nFast = 225;
 nSlow = domain.nElements;
 
 %training data params

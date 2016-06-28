@@ -2,8 +2,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-conductivity.Nx = 3; %number of basis functions in x-direction
-conductivity.Ny = 3; %number of basis functions in y-direction
+conductivity.Nx = 8; %number of basis functions in x-direction
+conductivity.Ny = 8; %number of basis functions in y-direction
 component = 6; %optimization component
 
 %start parameters for distribution on a
