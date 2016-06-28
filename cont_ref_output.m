@@ -26,7 +26,7 @@ if(nargout > 1)
 end
 
 %Finite differences gradient check
-gradcheck = 0;
+gradcheck = 1;
 if(gradcheck)
     disp('Perform finite difference gradient check')
     delta_a = 1e-4;
@@ -43,13 +43,13 @@ if(gradcheck)
 %         testOutput = physical.normalizationConstant*mvnpdf(FEMoutTest.temperatureMeasurements, physical.T_target, physical.cov_target);
         TDifftest = (FEMoutTest.temperatureMeasurements - physical.T_target);
         testLogU = -.5*TDifftest'*physical.covTargetInv*TDifftest;
-        trueLogU = Out.exponent;
+        trueLogU = logU;
         outputDiff = testLogU - trueLogU;
         FDgrad_dlogU_da(d) = outputDiff/delta_a;
     end
     FDgrad_dlogU_da
     lambdaDiff = norm(lambda - lambdaTest)
-    trueGrad = Out.dlogU_da
+    trueGrad = gradLogU
     relgrad = FDgrad_dlogU_da./trueGrad
     disp('----------------------------------------------------------')
 end

@@ -7,9 +7,9 @@ genTestData = 1            %generate new approximate data?
 
 nSurrogates = 1;
 
-nData = 500;                %number of training data
+nData = 50;                %number of training data
 nTest = 10;                %number of test data
-nDataFast = 500;           %number of fast solver iterations for training data; to construct equally spaced training data
+nDataFast = 5e3;           %number of fast solver iterations for training data; to construct equally spaced training data
 
 bFunOpt.type = 'rbf+trend';
 bFunOpt.nBasis = 5;

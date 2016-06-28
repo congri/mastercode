@@ -62,11 +62,11 @@ explorationSteps = 0;
 explorationFactor = 1.1;
 
 % If no parallel pool exists
-N_Threads = 2;
-if isempty(gcp('nocreate'))
-    % Create with 2 workers
-    parpool('local',N_Threads);
-end
+% N_Threads = 2;
+% if isempty(gcp('nocreate'))
+%     % Create with 2 workers
+%     parpool('local',N_Threads);
+% end
 
 for nS = 1:nSurrogates
 
@@ -102,55 +102,59 @@ for nS = 1:nSurrogates
         gradLogUMean = zeros(1,conductivity.dim);
 
         %M-step
-        for i = 1:optim(1).nSwaps
-            parfor pp = 1:2
-                out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
-                    domain, nSamplesIteration, aStart(pp,:));
-                optim(pp) = out(pp).optim;
-                %Refine step width according to acceptance ratio, tune it to about .7
-                if(out(pp).acceptance) %has to be nonzero
-                    optim(pp).MCMC.stepWidth = (1/.7)*out(pp).acceptance*optim(pp).MCMC.stepWidth;
-                end
-                while(out(pp).acceptance < .03)
-                warning('Acceptance ratio dropped below .03, resample with .3*stepwidth')
-                optim(pp).MCMC.stepWidth = .3*optim(pp).MCMC.stepWidth;
-                out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
-                    domain, nSamplesIteration, aStart(pp,:));
-                end
-                chain = pp
-                chainAcceptance = out(pp).acceptance
-            end
-            
-            samples(((i - 1)*nSamplesIteration + 1):(i*nSamplesIteration),:) = out(1).samples;
-            logUMean = ((i - 1)/i)*logUMean + (1/i)*out(1).statistics.logUmean
-            q_mean = ((i - 1)/i)*q_mean + (1/i)*out(1).statistics.q_mean;
-            grad_q_mean = ((i - 1)/i)*grad_q_mean + (1/i)*out(1).statistics.grad_q_mean;
-            gradLogUMean = ((i - 1)/i)*gradLogUMean + (1/i)*out(1).statistics.gradLogUMean;
-            stepWidth = optim(1).MCMC.stepWidth
-            stepWidthTempered = optim(2).MCMC.stepWidth
+%         for i = 1:optim(1).nSwaps
+%             parfor pp = 1:2
+%                 out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
+%                     domain, nSamplesIteration, aStart(pp,:));
+%                 optim(pp) = out(pp).optim;
+%                 %Refine step width according to acceptance ratio, tune it to about .7
+%                 if(out(pp).acceptance) %has to be nonzero
+%                     optim(pp).MCMC.stepWidth = (1/.7)*out(pp).acceptance*optim(pp).MCMC.stepWidth;
+%                 end
+%                 while(out(pp).acceptance < .03)
+%                 warning('Acceptance ratio dropped below .03, resample with .3*stepwidth')
+%                 optim(pp).MCMC.stepWidth = .3*optim(pp).MCMC.stepWidth;
+%                 out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
+%                     domain, nSamplesIteration, aStart(pp,:));
+%                 end
+%                 chain = pp
+%                 chainAcceptance = out(pp).acceptance
+%             end
+%             
+%             samples(((i - 1)*nSamplesIteration + 1):(i*nSamplesIteration),:) = out(1).samples;
+%             logUMean = ((i - 1)/i)*logUMean + (1/i)*out(1).statistics.logUmean
+%             q_mean = ((i - 1)/i)*q_mean + (1/i)*out(1).statistics.q_mean;
+%             grad_q_mean = ((i - 1)/i)*grad_q_mean + (1/i)*out(1).statistics.grad_q_mean;
+%             gradLogUMean = ((i - 1)/i)*gradLogUMean + (1/i)*out(1).statistics.gradLogUMean;
+%             stepWidth = optim(1).MCMC.stepWidth
+%             stepWidthTempered = optim(2).MCMC.stepWidth
+% 
+%             
+% 
+%             swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
+%                 out(2).pExponent - out(1).pExponent)
+%             Metropolis = exp(swapLogMetropolis);
+%             r = rand;
+%             if(r < Metropolis)
+%                disp('State swapping accepted') 
+%                aStart(1,:) = out(2).samples(end,:);
+%                aStart(2,:) = out(1).samples(end,:);
+%                optim(2).betaTrans = optim(2).betaTrans - 1e-1;
+%                optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
+%             else
+%                disp('State swapping rejected')
+%                aStart(1,:) = out(1).samples(end,:);
+%                aStart(2,:) = out(2).samples(end,:);
+%                optim(2).betaTrans = optim(2).betaTrans + 1e-1;
+%                optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
+%             end
+%             beta = optim(2).beta
+%             
+%         end
 
-            
-
-            swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
-                out(2).pExponent - out(1).pExponent)
-            Metropolis = exp(swapLogMetropolis);
-            r = rand;
-            if(r < Metropolis)
-               disp('State swapping accepted') 
-               aStart(1,:) = out(2).samples(end,:);
-               aStart(2,:) = out(1).samples(end,:);
-               optim(2).betaTrans = optim(2).betaTrans - 1e-1;
-               optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
-            else
-               disp('State swapping rejected')
-               aStart(1,:) = out(1).samples(end,:);
-               aStart(2,:) = out(2).samples(end,:);
-               optim(2).betaTrans = optim(2).betaTrans + 1e-1;
-               optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
-            end
-            beta = optim(2).beta
-            
-        end
+        out = a_samples(outFunction, physical, conductivity, optim(1),...
+                    domain, nSamplesIteration, aStart(1,:));
+        samples = out.samples;
 
         mu_a_old = conductivity.mu_a;
 
