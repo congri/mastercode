@@ -5,6 +5,7 @@ function [gradK, gradF] = gradKgradF(FEMout, conductivity, domain, a)
 grad_kl = zeros(4, 4, domain.nElements, conductivity.dim);
 SK = size(FEMout.globalStiffness);
 gradK = zeros(SK(1),SK(2),conductivity.dim);
+gradK2 = spalloc(SK(1),SK(2),3*SK(1));
 gradF = zeros(SK(1), conductivity.dim);
 l = 1;
 
@@ -23,6 +24,7 @@ if(strcmp(domain.basisFunctionType,'polynomial'))
         end   
     end
 elseif(strcmp(domain.basisFunctionType,'gauss'))%performance optimized
+
     localNodeInit = 1:4;
     for k = 1:domain.nElements
         equations = domain.lm(k,localNodeInit);
@@ -43,7 +45,7 @@ elseif(strcmp(domain.basisFunctionType,'gauss'))%performance optimized
             %localStiffnessOffset is with unity heat conductivity here
             grad_kl0 = prefactor(l)*conductivity.localStiffnessOffset;
             gradK(equations, equations,l) = gradK(equations, equations,l) + grad_kl0(localNode,localNode);
-        
+            
             %force vector
             if(Tbflag)
                 f = -grad_kl0*Tb;
@@ -56,6 +58,7 @@ elseif(strcmp(domain.basisFunctionType,'gauss'))%performance optimized
             end
         end
     end
+whos gradK2
 else
     error('unknown basis function type for lambda')
 end
