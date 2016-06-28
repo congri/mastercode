@@ -3,9 +3,8 @@ function [gradK, gradF] = gradKgradF(FEMout, conductivity, domain, a)
 %w.r.t. a
 
 grad_kl = zeros(4, 4, domain.nElements, conductivity.dim);
-SK = size(FEMout.globalStiffness);
-gradK = zeros(SK(1),SK(2),conductivity.dim);
-gradK2 = spalloc(SK(1),SK(2),3*SK(1));
+SK = size(FEMout.globalStiffness,1);
+gradK = zeros(SK,SK,conductivity.dim);
 gradF = zeros(SK(1), conductivity.dim);
 l = 1;
 
@@ -58,7 +57,6 @@ elseif(strcmp(domain.basisFunctionType,'gauss'))%performance optimized
             end
         end
     end
-whos gradK2
 else
     error('unknown basis function type for lambda')
 end
