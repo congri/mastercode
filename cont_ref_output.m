@@ -26,7 +26,7 @@ if(nargout > 1)
 end
 
 %Finite differences gradient check
-gradcheck = 1;
+gradcheck = 0;
 if(gradcheck)
     disp('Perform finite difference gradient check')
     delta_a = 1e-4;

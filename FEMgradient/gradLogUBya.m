@@ -21,7 +21,7 @@ adjoints = FEMout.globalStiffness\dLogU_dT'; %adjoints seem to be correct 18/02/
 %compute d log U(a)/d a
 dlogU_da = zeros(1,conductivity.dim);
 for l = 1:conductivity.dim
-    dlogU_da(l) = -adjoints'*(gradK(:,:,l)*FEMout.naturalTemperatures - gradF(:,l));
+    dlogU_da(l) = -adjoints'*(gradK(l).gK*FEMout.naturalTemperatures - gradF(:,l));
 end    
 
 
