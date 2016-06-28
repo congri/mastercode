@@ -7,7 +7,8 @@ function [f] = get_loc_force(e, domain, kin, physical)
 Tb = zeros(4,1);
 Tbflag = false;
 for i = 1:4
-    if(~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i))))
+%     if(~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i))))
+    if(domain.essNode(e, i))
         Tb(i) = domain.nodalCoordinates(4,domain.globalNodeNumber(e,i));
         Tbflag = true;
     end

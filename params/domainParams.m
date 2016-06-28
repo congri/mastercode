@@ -33,6 +33,13 @@ clear Sg i j;
 %equation number and local node number precomputation for sparse stiffness
 %assembly
 [domain.Equations, domain.LocalNode] = get_equations(domain.nElements, domain.lm);
+domain.kIndex = sub2ind([4 4 domain.nElements], domain.LocalNode(:,1), domain.LocalNode(:,2), domain.LocalNode(:,3));
+domain.essNode = false(domain.nElements, 4);
+for e = 1:domain.nElements
+    for i = 1:4
+        domain.essNode(e, i) = ~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i)));
+    end
+end
 %lc gives node coordinates, taking in element number and local node
 %number
 domain.lc = get_loc_coord(domain);

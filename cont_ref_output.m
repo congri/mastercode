@@ -43,14 +43,12 @@ if(gradcheck)
 %         testOutput = physical.normalizationConstant*mvnpdf(FEMoutTest.temperatureMeasurements, physical.T_target, physical.cov_target);
         TDifftest = (FEMoutTest.temperatureMeasurements - physical.T_target);
         testLogU = -.5*TDifftest'*physical.covTargetInv*TDifftest;
-        trueLogU = logU;
-        outputDiff = testLogU - trueLogU;
+        outputDiff = testLogU - logU;
         FDgrad_dlogU_da(d) = outputDiff/delta_a;
     end
     FDgrad_dlogU_da
     lambdaDiff = norm(lambda - lambdaTest)
-    trueGrad = gradLogU
-    relgrad = FDgrad_dlogU_da./trueGrad
+    relgrad = FDgrad_dlogU_da./gradLogU
     disp('----------------------------------------------------------')
 end
 
