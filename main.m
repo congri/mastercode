@@ -10,7 +10,7 @@ addpath('FEMgradient')
 addpath('aux')
 addpath('util')
 params;
-modelType = 'reference';   %which model? reference/multilevel
+modelType = 'multilevel';   %which model? reference/multilevel
 sv = true      %save?
 
 %define output function handle giving log U, grad log U and eventually U
@@ -211,7 +211,7 @@ end
 if(sv)
     disp('saving...')
     filename = datestr(now,30);
-    dir = './data/dim9/all';
+    dir = './data/dim64/all';
     mkdir(dir);
     filename = strcat(dir,'/optim',modelType,filename);
     save(filename,'-v7.3');
