@@ -19,7 +19,7 @@ lambda = computeLambda(a, domain, conductivity.lambdaCutoff);
 
 [logU, gradLogU] = outFunction(lambda, a, conductivity, physical, domain);
 aDiff = (a - conductivity.mu_a);
-pExponent = -.5*optim.beta*aDiff*conductivity.covar_aInv*aDiff';
+pExponent = -.5*aDiff*conductivity.covar_aInv*aDiff';
 %assert(q ~= 0, 'Error: MCMC weight q dropped to 0 numerically')
 %assert(outFunctionOut.output ~= 0, 'Error: MCMC weight q dropped to 0 numerically')
 assert(~isinf(logU), 'Error: infinite output exponent: zero probability')
@@ -52,10 +52,10 @@ for i = 1:optim.MCMC.nTherm
         inverseProposalMean = aTemp  + .5*optim.beta*optim.MCMC.stepWidth^2*grad_qprop;
         invProposalExponent = -.5*(a - inverseProposalMean)*invProposalCov*(a - inverseProposalMean)';
         aDiffTemp = (aTemp - conductivity.mu_a);
-        pExponentTemp = -.5*optim.beta*aDiffTemp*conductivity.covar_aInv*aDiffTemp';
+        pExponentTemp = -.5*aDiffTemp*conductivity.covar_aInv*aDiffTemp';
 
         Metropolis = exp(invProposalExponent - proposalExponent + ...
-            optim.beta*logUprop - optim.beta*logU + pExponent - pExponentTemp);
+            optim.beta*(logUprop - logU + pExponent - pExponentTemp));
     elseif(strcmp(optim.samplingMethod,'nonlocal'))
         %propose from p(a|theta) directly
         aTemp = mvnrnd(conductivity.mu_a, conductivity.covar_a);
@@ -125,10 +125,10 @@ for i = 1:nSamplesIteration
         inverseProposalMean = aTemp  + .5*optim.beta*optim.MCMC.stepWidth^2*grad_qprop;
         invProposalExponent = -.5*(a - inverseProposalMean)*invProposalCov*(a - inverseProposalMean)';
         aDiffTemp = (aTemp - conductivity.mu_a);
-        pExponentTemp = -.5*optim.beta*aDiffTemp*conductivity.covar_aInv*aDiffTemp';
+        pExponentTemp = -.5*aDiffTemp*conductivity.covar_aInv*aDiffTemp';
 
         Metropolis = exp(invProposalExponent - proposalExponent + ...
-            optim.beta*logUprop - optim.beta*logU + pExponentTemp - pExponent);
+            optim.beta*(logUprop - logU + pExponentTemp - pExponent));
 
     elseif(strcmp(optim.samplingMethod,'nonlocal'))
         %propose from p(a|theta) directly

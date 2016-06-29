@@ -129,16 +129,6 @@ for nS = 1:nSurrogates
             stepWidth = optim(1).MCMC.stepWidth
             stepWidthTempered = optim(2).MCMC.stepWidth
 
-            
-
-            tempLogU = out(2).logU
-            logU = out(1).logU
-            diffU = tempLogU - logU
-            
-            tempLogP = out(2).pExponent
-            LogP = out(1).pExponent
-            diffP = tempLogP - LogP
-            
             swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
                 out(2).pExponent - out(1).pExponent)
             Metropolis = exp(swapLogMetropolis);
@@ -146,14 +136,14 @@ for nS = 1:nSurrogates
             if(r < Metropolis)
                disp('State swapping accepted') 
                aStart(1,:) = out(2).samples(end,:);
-               aStart(2,:) = out(1).samples(end,:);
-               optim(2).betaTrans = optim(2).betaTrans - 1e-1;
+               aStart(2,:) = out(2).samples(end,:);
+               optim(2).betaTrans = optim(2).betaTrans - 4e-1;
                optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
             else
                disp('State swapping rejected')
                aStart(1,:) = out(1).samples(end,:);
-               aStart(2,:) = out(2).samples(end,:);
-               optim(2).betaTrans = optim(2).betaTrans + 1e-1;
+               aStart(2,:) = out(1).samples(end,:);
+               optim(2).betaTrans = optim(2).betaTrans + 4e-1;
                optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
             end
             beta = optim(2).beta
