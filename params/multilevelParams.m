@@ -1,6 +1,6 @@
 %params specificially for the multi level model
 
-plt = 0        %plotu_s - u_f regression?
+plt = 1        %plotu_s - u_f regression?
 ck = 0         %check?
 genTrainingData = 1        %generate new accurate data?
 genTestData = 1            %generate new approximate data?
