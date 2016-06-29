@@ -131,6 +131,14 @@ for nS = 1:nSurrogates
 
             
 
+            tempLogU = out(2).logU
+            logU = out(1).logU
+            diffU = tempLogU - logU
+            
+            tempLogP = out(2).pExponent
+            LogP = out(1).pExponent
+            diffP = tempLogP - LogP
+            
             swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
                 out(2).pExponent - out(1).pExponent)
             Metropolis = exp(swapLogMetropolis);

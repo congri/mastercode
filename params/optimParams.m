@@ -26,6 +26,6 @@ nChains = 2;
 optim = repmat(optim,2,1);
 %second, tempered Markov chain
 optim(2).MCMC.stepWidth = 10*optim(1).MCMC.stepWidth;
-optim(2).betaTrans = -2;
-optim(2).betaMax = .2;
+optim(2).betaTrans = - 2;
+optim(2).betaMax = 1;
 optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);

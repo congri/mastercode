@@ -2,8 +2,8 @@
 
 plt = 1        %plotu_s - u_f regression?
 ck = 0         %check?
-genTrainingData = 1        %generate new accurate data?
-genTestData = 1            %generate new approximate data?
+genTrainingData = 0        %generate new accurate data?
+genTestData = 0            %generate new approximate data?
 
 nSurrogates = 3;
 
@@ -12,7 +12,7 @@ nTest = 10;                %number of test data
 nDataFast = 5e3;           %number of fast solver iterations for training data; to construct equally spaced training data
 
 bFunOpt.type = 'rbf+trend';
-bFunOpt.nBasis = 5;
+bFunOpt.nBasis = 4;
 %mean of exponential prior on sigma, must be > 0
 mu_sigma = 1e100;
 %linear model; posterior mean and cov of model params

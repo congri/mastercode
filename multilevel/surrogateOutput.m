@@ -18,9 +18,6 @@ if(nargout > 2)
 end
 
 predExponent = logphi(uPred);       %median prediction
-logU
-predExponent
-rel = predExponent/logU
 % predExponent = logphi(Q);         %mean prediction
 
 %mean prediction gradient

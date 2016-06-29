@@ -45,6 +45,11 @@ else
     [approx_u, inputData] = pickData(approx_u, inputData, nData);
 
     clear temp;
+    
+    %set to fast solver mesh size
+    clear domain;
+    domain.nElements = nFast; %number of finite elements
+    paramsNewDomain;
 end
 
 %sort data
