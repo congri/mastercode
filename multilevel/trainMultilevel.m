@@ -150,15 +150,17 @@ if(plt)
     figure
 %     erp = shadedErrorBar(approxInf,predMean,predVar)
     hold on
-    pac = plot(approx_uTest,accurate_uTest,'x');
-    pap = plot(approx_u,accurate_u,'x');
+    pap = plot(approx_u,accurate_u,'x','markersize',10,'linewidth',2);
+    pac = plot(approx_uTest,accurate_uTest,'x','markersize',10,'linewidth',2);
     for i = 1:4
         eta = mvnrnd(postMean, postCov);
         samp = eta*bFunH(approxInf);
-        plot(approxInf, samp,'k')
+        h(i) = plot(approxInf, samp,'k', 'linewidth',1.5);
     end
+    id = plot(-1e5:1e3:1e5, -1e5:1e3:1e5,'r','linewidth',2);
     hold off
     box on
+    grid on
     clear eta approxInf samp;
     
 end

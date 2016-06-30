@@ -1,11 +1,17 @@
 function [approx_uOut, inputDataOut] = pickData(approx_uIn, inputDataIn, nData, upperFraction)
 %Pick out equally spaced data
 
+[approx_uIn, index] = sort(approx_uIn);
+inputDataIn = inputDataIn(index,:);
+lu = length(approx_uIn);
+approx_uIn = approx_uIn((1 - upperFraction)*lu:end);
+inputDataIn = inputDataIn((1 - upperFraction)*lu:end,:);
+
 hi = max(approx_uIn);
 lo = min(approx_uIn);
 
-p = 1 - upperFraction;
-centers = linspace(p*hi + (1 - p)*lo,hi,nData);
+% p = 1 - upperFraction;
+centers = linspace(lo,hi,nData);
 
 approx_uOut = zeros(nData,1);
 inputDataOut = zeros(nData, size(inputDataIn,2));

@@ -14,7 +14,7 @@ optim.MCMC.runTimeLimit = 1000000; %Runtime limit for single sampling step
 optim.nSwaps = 5; %how often propose to swap markov chains
 
 %maximum iterations in opt step
-optim.maxIterations = 50;
+optim.maxIterations = 70;
 %Convergence criteria
 optim.muDifferenceThreshold = 1e-20;
 optim.covarDifferenceThreshold = 1e-4;

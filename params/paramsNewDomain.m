@@ -10,3 +10,6 @@ physicalParams;
 conductivityParams;
 %second domain script has to be executed after conductivity field params
 domainParams2;
+%reevaluate target to measure temperatures exactly at FEM nodes
+target;
+physicalParams;

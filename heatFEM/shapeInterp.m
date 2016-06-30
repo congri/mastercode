@@ -1,6 +1,6 @@
 %plot shape function interpolate
 
-a = 4*rand(1, 9) - 3;
+% a = 4*rand(1, 9) - 3;
 %compute conductivities
 [lambda] = computeLambda(a, domain, conductivity.lambdaCutoff);
 D = zeros(2,2,domain.nElements);
@@ -93,14 +93,14 @@ contourf(X, Y, Tfield, 256, 'linecolor', 'none')
 axis square
 Xr = linspace(0, 1, domain.Nx + 1);
 [Xr, Yr] = meshgrid(Xr);
-subplot(1,2,2)
+s = subplot(1,2,2)
 contourf(Xr, Yr, FEMout.Tff, 256, 'linecolor', 'none')
 axis square
 figure
 subplot(1,2,1)
 contour(X, Y, Tfield, 12)
 hold on
-quiver(X, Y, gradFieldX, gradFieldY)
+quiver(X, Y, gradFieldX, gradFieldY, 'linewidth',1, 'markersize', 12)
 hold off
 xlim([0 1])
 ylim([0 1])
@@ -108,7 +108,7 @@ axis square
 subplot(1,2,2)
 contour(X, Y, Tfield, 12)
 hold on
-quiver(X, Y, fluxX, fluxY, 'linewidth',1, 'markersize', 5)
+quiver(X, Y, fluxX, fluxY, 'linewidth',1, 'markersize', 12)
 hold off
 xlim([0 1])
 ylim([0 1])
