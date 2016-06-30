@@ -23,7 +23,7 @@
 % physical.covTargetInv = inv(physical.cov_target);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%target matlab peaks
+%target
 [X,Y] = meshgrid(linspace(0,domain.length,domain.Nx + 1), linspace(0, domain.height, domain.Ny + 1));
 physical.x = [X(:) Y(:)];
 physical.x = single(physical.x);

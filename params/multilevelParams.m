@@ -1,6 +1,6 @@
 %params specificially for the multi level model
 
-plt = 0        %plotu_s - u_f regression?
+plt = 1        %plotu_s - u_f regression?
 ck = 0         %check?
 genTrainingData = 1        %generate new accurate data?
 genTestData = 1            %generate new approximate data?
@@ -8,8 +8,10 @@ genTestData = 1            %generate new approximate data?
 nSurrogates = 3;
 
 nData = 50;                %number of training data
-nTest = 10;                %number of test data
-nDataFast = 5e3;           %number of fast solver iterations for training data; to construct equally spaced training data
+nTest = 200;                %number of test data
+nDataFast = 1e4;           %number of fast solver iterations for training data; to construct equally spaced training data
+upperFraction = .1;       %only take upper fraction of fast solver data to build surrogate, as we mainly want to
+                           %predict high values of u_s
 
 bFunOpt.type = 'rbf+trend';
 bFunOpt.nBasis = 4;

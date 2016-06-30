@@ -1,10 +1,10 @@
-function [approx_uOut, inputDataOut] = pickData(approx_uIn, inputDataIn, nData)
+function [approx_uOut, inputDataOut] = pickData(approx_uIn, inputDataIn, nData, upperFraction)
 %Pick out equally spaced data
 
 hi = max(approx_uIn);
 lo = min(approx_uIn);
 
-p = .9;
+p = 1 - upperFraction;
 centers = linspace(p*hi + (1 - p)*lo,hi,nData);
 
 approx_uOut = zeros(nData,1);

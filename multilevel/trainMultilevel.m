@@ -25,7 +25,7 @@ if(genTrainingData)
     [~, approx_u] =...
         generateData(inputData, physical, domain, conductivity, nDataFast, 'approxData');
     
-    [approx_u, inputData] = pickData(approx_u, inputData, nData);
+    [approx_u, inputData] = pickData(approx_u, inputData, nData, upperFraction);
     
     clear domain;
     domain.nElements = nSlow; %number of finite elements
@@ -42,7 +42,7 @@ else
     approx_u = temp.transformedU;
     temp = load('./data/multilevel/input.mat');
     inputData = temp.inputData;
-    [approx_u, inputData] = pickData(approx_u, inputData, nData);
+    [approx_u, inputData] = pickData(approx_u, inputData, nData, upperFraction);
 
     clear temp;
     
@@ -112,7 +112,7 @@ clear ck;
 
 
 if(genTestData)
-    inputTest = mvnrnd(trainingDataMean,trainingDataCov,nData);
+    inputTest = mvnrnd(trainingDataMean,trainingDataCov,nTest);
     %specify mesh size before execution of params script!
     clear domain;
     domain.nElements = nSlow; %number of finite elements
@@ -158,6 +158,7 @@ if(plt)
         plot(approxInf, samp,'k')
     end
     hold off
+    box on
     clear eta approxInf samp;
     
 end
