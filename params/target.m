@@ -28,7 +28,8 @@
 physical.x = [X(:) Y(:)];
 physical.x = single(physical.x);
 % physical.T_target = 2*peaks(5*(X(:) - .5),5*(Y(:) - .5));
-physical.T_target = 20*exp(-12*(5*X(:) + .5).*(Y(:) - .5).^2);
+% physical.T_target = 20*exp(-12*(5*X(:) + .5).*(Y(:) - .5).^2);
+physical.T_target = 20*exp(-.5*diag([X(:) Y(:) - .5]*[7.5 0; 0 40]*[X(:) Y(:) - .5]'));
 physical.cov_target = sparse((1/1)*eye(length(physical.T_target)));
 physical.covTargetInv = inv(physical.cov_target);
 

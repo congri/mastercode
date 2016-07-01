@@ -10,7 +10,7 @@ addpath('FEMgradient')
 addpath('aux')
 addpath('util')
 params;
-modelType = 'multilevel';   %which model? reference/multilevel
+modelType = 'reference';   %which model? reference/multilevel
 sv = true      %save?
 
 %define output function handle giving log U, grad log U and eventually U
@@ -31,7 +31,7 @@ elseif(strcmp(modelType,'multilevel'))
     trainMultilevel;
     etaArray = mvnrnd(postMean, postCov, nSurrogates);
     
-%     error('model trained') %to stop after model training
+    error('model trained') %to stop after model training
     
     
 else
