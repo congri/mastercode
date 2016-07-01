@@ -10,7 +10,7 @@ addpath('FEMgradient')
 addpath('aux')
 addpath('util')
 params;
-modelType = 'reference';   %which model? reference/multilevel
+modelType = 'multilevel';   %which model? reference/multilevel
 sv = true      %save?
 
 %define output function handle giving log U, grad log U and eventually U
