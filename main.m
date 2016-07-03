@@ -18,8 +18,8 @@ if(strcmp(modelType,'reference'))
     
     disp('Reference solver model')
     nSurrogates = 1;
-    outFunction = @(lambda, input, conductivity, physical, domain)...
-        cont_ref_output(lambda, input, conductivity, physical, domain);
+    outFunction = @(input, conductivity, physical, domain)...
+        cont_ref_output(input, conductivity, physical, domain);
     
 elseif(strcmp(modelType,'multilevel'))
     
@@ -74,8 +74,8 @@ for nS = 1:nSurrogates
     
     if(strcmp(modelType,'multilevel'))
         eta = etaArray(nS,:)
-        outFunction = @(lambda, input, conductivity, physical, domain)...
-            surrogateOutput(lambda, input, conductivity, physical, domain,...
+        outFunction = @(input, conductivity, physical, domain)...
+            surrogateOutput(input, conductivity, physical, domain,...
             etaArray(nS,:), sigmaNoise, bFunH);
     end
     

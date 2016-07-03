@@ -1,6 +1,9 @@
-function [logU, gradLogU, U] = cont_ref_output(lambda, aTemp, conductivity, physical, domain)
+function [logU, gradLogU, U] = cont_ref_output(input, conductivity, physical, domain)
 %Gives the output function in the continuous lambda case
 %Construct heat conductivity matrix D
+
+%Values of heat conductivities on finite elements
+lambda = computeLambda(input, domain, conductivity.lambdaCutoff);
 
 D = zeros(2,2,domain.nElements);
 for i = 1:domain.nElements
@@ -22,7 +25,7 @@ end
 
 %Gradient computation
 if(nargout > 1)
-    gradLogU = gradLogUBya(FEMout, conductivity, domain, physical, aTemp');
+    gradLogU = gradLogUBya(FEMout, conductivity, domain, physical, input');
 end
 
 %Finite differences gradient check
@@ -34,7 +37,7 @@ if(gradcheck)
     for d = 1:conductivity.dim
         deltaVec = zeros(1,conductivity.dim);
         deltaVec(d) = 1;
-        lambdaTest = computeLambda(aTemp + delta_a*deltaVec, domain, conductivity.lambdaCutoff);
+        lambdaTest = computeLambda(input + delta_a*deltaVec, domain, conductivity.lambdaCutoff);
         DTest = zeros(2,2,domain.nElements);
         for i = 1:domain.nElements
             DTest(:,:,i) = lambdaTest(i)*eye(2); %only isotropic material

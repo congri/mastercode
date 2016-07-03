@@ -1,4 +1,4 @@
-function [out] = a_samples(outFunction, physical, conductivity, optim, domain, nSamplesIteration, a)
+function [out] = a_samples(outFunction, physical, conductivity, optim, domain, nSamplesIteration, input)
 %Compute samples of q^beta(a) = (U(a)*p(a|theta))^beta in EM algorithm,
 %where beta might be an auxiliary temperature for multi-modality mixing
 
@@ -14,11 +14,8 @@ zMean = zeros(1, numel(conductivity.mu_a));
 zCovariance = eye(numel(conductivity.mu_a));
 invProposalCov = inv(optim.MCMC.stepWidth^2*zCovariance);
 
-%Values of heat conductivities on finite elements
-lambda = computeLambda(a, domain, conductivity.lambdaCutoff);
-
-[logU, gradLogU] = outFunction(lambda, a, conductivity, physical, domain);
-aDiff = (a - conductivity.mu_a);
+[logU, gradLogU] = outFunction(input, conductivity, physical, domain);
+aDiff = (input - conductivity.mu_a);
 pExponent = -.5*aDiff*conductivity.covar_aInv*aDiff';
 %assert(q ~= 0, 'Error: MCMC weight q dropped to 0 numerically')
 %assert(outFunctionOut.output ~= 0, 'Error: MCMC weight q dropped to 0 numerically')
@@ -31,38 +28,33 @@ accepted_therm = 0;
 accThermRatio = 0;
 statistics.logUmean = 0;
 statistics.q_mean = 0;
-grad_q = -(conductivity.covar_a\((a - conductivity.mu_a)'))' + gradLogU;
+grad_q = -(conductivity.covar_a\((input - conductivity.mu_a)'))' + gradLogU;
 statistics.grad_q_mean = grad_q;
 statistics.gradLogUMean = gradLogU;
 for i = 1:optim.MCMC.nTherm
     if(strcmp(optim.samplingMethod,'langevin'))
         %Langevin proposal 15/02/16
-        proposalMean = a + .5*optim.beta*optim.MCMC.stepWidth^2*grad_q;
-        aTemp = proposalMean + optim.MCMC.stepWidth*mvnrnd(zMean, zCovariance);
+        proposalMean = input + .5*optim.beta*optim.MCMC.stepWidth^2*grad_q;
+        inputTemp = proposalMean + optim.MCMC.stepWidth*mvnrnd(zMean, zCovariance);
 
-        lambda = computeLambda(aTemp, domain, conductivity.lambdaCutoff);
+        [logUprop, gradLogUprop] = outFunction(inputTemp, conductivity, physical, domain);
+        grad_qprop = -(conductivity.covar_a\((inputTemp - conductivity.mu_a)'))' + gradLogUprop;
 
-        [logUprop, gradLogUprop] = outFunction(lambda, aTemp, conductivity, physical, domain);
-        grad_qprop = -(conductivity.covar_a\((aTemp - conductivity.mu_a)'))' + gradLogUprop;
-
-        proposalExponent = -.5*(aTemp - proposalMean)*invProposalCov*(aTemp - proposalMean)';
+        proposalExponent = -.5*(inputTemp - proposalMean)*invProposalCov*(inputTemp - proposalMean)';
 
 
         %Compute densities for inverse step, needed for Metropolis
-        inverseProposalMean = aTemp  + .5*optim.beta*optim.MCMC.stepWidth^2*grad_qprop;
-        invProposalExponent = -.5*(a - inverseProposalMean)*invProposalCov*(a - inverseProposalMean)';
-        aDiffTemp = (aTemp - conductivity.mu_a);
+        inverseProposalMean = inputTemp  + .5*optim.beta*optim.MCMC.stepWidth^2*grad_qprop;
+        invProposalExponent = -.5*(input - inverseProposalMean)*invProposalCov*(input - inverseProposalMean)';
+        aDiffTemp = (inputTemp - conductivity.mu_a);
         pExponentTemp = -.5*aDiffTemp*conductivity.covar_aInv*aDiffTemp';
 
         Metropolis = exp(invProposalExponent - proposalExponent + ...
             optim.beta*(logUprop - logU + pExponent - pExponentTemp));
     elseif(strcmp(optim.samplingMethod,'nonlocal'))
         %propose from p(a|theta) directly
-        aTemp = mvnrnd(conductivity.mu_a, conductivity.covar_a);
-        
-        lambda = computeLambda(aTemp, domain, conductivity.lambdaCutoff);
-        
-        [logUprop] = outFunction(lambda, aTemp, conductivity, physical, domain);
+        inputTemp = mvnrnd(conductivity.mu_a, conductivity.covar_a);     
+        [logUprop] = outFunction(inputTemp, conductivity, physical, domain);
         
         pExponentTemp = 0; %dummy
         
@@ -77,7 +69,7 @@ for i = 1:optim.MCMC.nTherm
        logU = logUprop;
        gradLogU = gradLogUprop;
        grad_q = grad_qprop;
-       a = aTemp;
+       input = inputTemp;
        accepted_therm = accepted_therm + 1;
     end
 end
@@ -111,20 +103,18 @@ j = 1;
 for i = 1:nSamplesIteration
     if(strcmp(optim.samplingMethod,'langevin'))
         %Langevin proposal 15/02/16
-        proposalMean = a + .5*optim.beta*optim.MCMC.stepWidth^2*grad_q;
+        proposalMean = input + .5*optim.beta*optim.MCMC.stepWidth^2*grad_q;
         %outFunctionOut.gradient_a
-        aTemp = proposalMean + optim.MCMC.stepWidth*mvnrnd(zMean, zCovariance);
-        lambda = computeLambda(aTemp, domain, conductivity.lambdaCutoff);
+        inputTemp = proposalMean + optim.MCMC.stepWidth*mvnrnd(zMean, zCovariance);
+        [logUprop, gradLogUprop] = outFunction(inputTemp, conductivity, physical, domain);
+        grad_qprop = -(conductivity.covar_a\((inputTemp - conductivity.mu_a)'))' + gradLogUprop;
 
-        [logUprop, gradLogUprop] = outFunction(lambda, aTemp, conductivity, physical, domain);
-        grad_qprop = -(conductivity.covar_a\((aTemp - conductivity.mu_a)'))' + gradLogUprop;
-
-        proposalExponent = -.5*(aTemp - proposalMean)*invProposalCov*(aTemp - proposalMean)';
+        proposalExponent = -.5*(inputTemp - proposalMean)*invProposalCov*(inputTemp - proposalMean)';
 
         %Compute densities for inverse step, needed for Metropolis
-        inverseProposalMean = aTemp  + .5*optim.beta*optim.MCMC.stepWidth^2*grad_qprop;
-        invProposalExponent = -.5*(a - inverseProposalMean)*invProposalCov*(a - inverseProposalMean)';
-        aDiffTemp = (aTemp - conductivity.mu_a);
+        inverseProposalMean = inputTemp  + .5*optim.beta*optim.MCMC.stepWidth^2*grad_qprop;
+        invProposalExponent = -.5*(input - inverseProposalMean)*invProposalCov*(input - inverseProposalMean)';
+        aDiffTemp = (inputTemp - conductivity.mu_a);
         pExponentTemp = -.5*aDiffTemp*conductivity.covar_aInv*aDiffTemp';
 
         Metropolis = exp(invProposalExponent - proposalExponent + ...
@@ -132,11 +122,9 @@ for i = 1:nSamplesIteration
 
     elseif(strcmp(optim.samplingMethod,'nonlocal'))
         %propose from p(a|theta) directly
-        aTemp = mvnrnd(conductivity.mu_a, conductivity.covar_a);
-        
-        lambda = computeLambda(aTemp, domain, conductivity.lambdaCutoff);
-        
-        [logUprop] = outFunction(lambda, aTemp, conductivity, physical, domain);
+        inputTemp = mvnrnd(conductivity.mu_a, conductivity.covar_a);
+                
+        [logUprop] = outFunction(inputTemp, conductivity, physical, domain);
         
         pExponentTemp = 0; %dummy
         
@@ -151,20 +139,20 @@ for i = 1:nSamplesIteration
        logU = logUprop;
        gradLogU = gradLogUprop;
        grad_q = grad_qprop;
-       a = aTemp;
+       input = inputTemp;
        accepted = accepted + 1;
        currentAcceptance = accepted/i;
     end
     
     if(mod(i,optim.MCMC.nGap) == 0)
         statistics.logUmean = (j/(j + 1))*statistics.logUmean + (1/(j + 1))*logU;
-        p = mvnpdf(a,conductivity.mu_a,conductivity.covar_a);
+        p = mvnpdf(input,conductivity.mu_a,conductivity.covar_a);
         q = exp(logU)*p;
         statistics.q_mean = (j/(j + 1))*statistics.q_mean + (1/(j + 1))*q;
         statistics.grad_q_mean = (j/(j + 1))*statistics.grad_q_mean + (1/(j + 1))*grad_q;
         statistics.gradLogUMean = (j/(j + 1))*statistics.gradLogUMean + (1/(j + 1))*gradLogU;
 
-        samples(j,:) = a;
+        samples(j,:) = input;
         j = j + 1;
     end
     
