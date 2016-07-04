@@ -4,7 +4,9 @@ addpath('./util')
 addpath('./MCMC/MCMCsampler')
 m = [5 0];
 S = eye(size(m, 2));
+S(2,2) = 9;
 distribution = @(x) testDistribution(x, m, S);
+% gradp = @(x) testDistributionGrad(x, m, S);
 
 opts.method = 'MALA'; %randomWalk, nonlocal or langevin
 opts.nThermalization = 1e2;
@@ -26,4 +28,15 @@ opts.MALA.stepWidth = 1.2;
 startValue = [-10 -2];
 
 
-[samples, acceptanceRatio] = MCMCsampler(distribution, startValue, opts);
+[out] = MCMCsampler(distribution, startValue, opts);
+
+%HMC
+% options(1) = 0;             %display
+% options(5) = 1;             %momentum persistence
+% options(7) = 2;             %leapfrog steps
+% options(9) = 0;             %gradient check
+% options(14) = 5e4;          %nSamples
+% options(15) = 0;            %nTherm
+% options(17) = 1;           %persistence?
+% options(18) = .2/options(7); %step size in leapfrogs
+% [samplesHMC, energies, diagn] = hmc(distribution, startValue, options, gradp);

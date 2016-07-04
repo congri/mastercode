@@ -9,8 +9,8 @@ nSurrogates = 3;
 
 nData = 50;                %number of training data
 nTest = 50;                %number of test data
-nDataFast = 5e3;           %number of fast solver iterations for training data; to construct equally spaced training data
-upperFraction = .5;       %only take upper fraction of fast solver data to build surrogate, as we mainly want to
+nDataFast = 2e3;           %number of fast solver iterations for training data; to construct equally spaced training data
+upperFraction = 1;       %only take upper fraction of fast solver data to build surrogate, as we mainly want to
                            %predict high values of u_s
 
 bFunOpt.type = 'rbf+trend';

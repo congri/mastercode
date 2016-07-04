@@ -7,10 +7,8 @@ transformedU = zeros(nData,1);
 
 for i = 1:nData
     i
-    lambda = computeLambda(inputData(i,:), domain, conductivity.lambdaCutoff);
-
     %compute output
-    [logUi] = cont_ref_output(lambda, inputData(i,:), conductivity, physical, domain);
+    [logUi] = cont_ref_output(inputData(i,:), conductivity, physical, domain);
     logU(i) = logUi;
     transformedU(i) = logphiInv(logUi,-20);
 end

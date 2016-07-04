@@ -86,7 +86,8 @@ for i = 1:numel(X)
     fluxY(i) = - lambda(el(i))*gradFieldY(i);
 end
 
-figure
+f1 = figure
+set(f1, 'Position', [-800, -800, 1500, 580]);
 colormap jet
 subplot(1,2,1)
 contourf(X, Y, Tfield, 256, 'linecolor', 'none')
@@ -96,8 +97,8 @@ Xr = linspace(0, 1, domain.Nx + 1);
 s = subplot(1,2,2)
 contourf(Xr, Yr, FEMout.Tff, 256, 'linecolor', 'none')
 axis square
-figure
-subplot(1,2,1)
+f2 = figure
+set(f2, 'Position', [-800, -800, 1000, 840]);subplot(1,2,1)
 contour(X, Y, Tfield, 12)
 hold on
 quiver(X, Y, gradFieldX, gradFieldY, 'linewidth',1, 'markersize', 12)

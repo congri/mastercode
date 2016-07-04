@@ -1,11 +1,11 @@
-function [predExponent, grad_log_UPred, output] = surrogateOutput(lambda, input, conductivity, physical, domain,...
+function [predExponent, grad_log_UPred, output] = surrogateOutput(input, conductivity, physical, domain,...
      eta, sigmaNoise, bFunH)
 %surrogate output and gradient
 
 if(nargout > 1)
-    [logU, gradLogU] = cont_ref_output(lambda, input, conductivity, physical, domain);
+    [logU, gradLogU] = cont_ref_output(input, conductivity, physical, domain);
 else
-    logU = cont_ref_output(lambda, input, conductivity, physical, domain);
+    logU = cont_ref_output(input, conductivity, physical, domain);
 end
 
 uf = logphiInv(logU, 0);

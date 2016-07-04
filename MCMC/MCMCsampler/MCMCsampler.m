@@ -1,4 +1,4 @@
-function [samples, acceptanceRatio] = MCMCsampler(log_distribution, startValue, opts)
+function [out] = MCMCsampler(log_distribution, startValue, opts)
 %Standalone MCMC sampler. Pass distribution, starting value and options and
 %get samples
 %By C. Grigo, July 2016
@@ -29,7 +29,7 @@ rng('shuffle');     %random number seed based on system time
 
 
 %preallocation of samples array
-samples = zeros(opts.nSamples, size(startValue, 2));
+out.samples = zeros(opts.nSamples, size(startValue, 2));
 samplesTherm = zeros(opts.nThermalization, size(startValue, 2));
 samplesTherm(1, :) = startValue;
 
@@ -73,12 +73,12 @@ for i = 1:(opts.nThermalization - 1)
     elseif(strcmp(opts.method, 'MALA'))
         %Metropolis adjusted Langevin algorithm
         
-        proposalMean = x + .5*opts.MALA.stepWidth^2*d_log_p';
+        proposalMean = x + .5*opts.MALA.stepWidth^2*d_log_p;
         xProp = proposalMean + opts.MALA.stepWidth*mvnrnd(zeroMean, unitCov);
         proposalExponent = -.5*(xProp - proposalMean)*invProposalCov*(xProp - proposalMean)';
         
         [log_pProp, d_log_pProp] = log_distribution(xProp);
-        inverseProposalMean = xProp  + .5*opts.MALA.stepWidth^2*d_log_pProp';
+        inverseProposalMean = xProp  + .5*opts.MALA.stepWidth^2*d_log_pProp;
         invProposalExponent = -.5*(x - inverseProposalMean)*invProposalCov*(x - inverseProposalMean)';
         
         Metropolis = exp(invProposalExponent - proposalExponent + log_pProp - log_p);
@@ -105,11 +105,11 @@ for i = 1:(opts.nThermalization - 1)
 
 end
 
-acceptanceRatio = accepted/opts.nThermalization;
+acceptance = accepted/opts.nThermalization;
 %refine proposal params after thermalization
 if(strcmp(opts.method, 'randomWalk'))
     
-    opts.randomWalk.proposalCov = (1/.7)*acceptanceRatio*opts.randomWalk.proposalCov;
+    opts.randomWalk.proposalCov = (1/.7)*acceptance*opts.randomWalk.proposalCov;
     
 elseif(strcmp(opts.method, 'nonlocal'))
     
@@ -120,7 +120,7 @@ elseif(strcmp(opts.method, 'nonlocal'))
 elseif(strcmp(opts.method, 'MALA'))
     %Metropolis adjusted Langevin algorithm
     
-    opts.MALA.stepWidth = (1/.7)*acceptanceRatio*opts.MALA.stepWidth;
+    opts.MALA.stepWidth = (1/.7)*acceptance*opts.MALA.stepWidth;
 
 else
     error('unknown MCMC sampling method')
@@ -151,12 +151,12 @@ for i = 1:opts.nSamples
     elseif(strcmp(opts.method, 'MALA'))
         %Metropolis adjusted Langevin algorithm
         
-        proposalMean = x + .5*opts.MALA.stepWidth^2*d_log_p';
+        proposalMean = x + .5*opts.MALA.stepWidth^2*d_log_p;
         xProp = proposalMean + opts.MALA.stepWidth*mvnrnd(zeroMean, unitCov);
         proposalExponent = -.5*(xProp - proposalMean)*invProposalCov*(xProp - proposalMean)';
         
         [log_pProp, d_log_pProp] = log_distribution(xProp);
-        inverseProposalMean = xProp  + .5*opts.MALA.stepWidth^2*d_log_pProp';
+        inverseProposalMean = xProp  + .5*opts.MALA.stepWidth^2*d_log_pProp;
         invProposalExponent = -.5*(x - inverseProposalMean)*invProposalCov*(x - inverseProposalMean)';
         
         Metropolis = exp(invProposalExponent - proposalExponent + log_pProp - log_p);
@@ -179,11 +179,11 @@ for i = 1:opts.nSamples
         accepted = accepted + 1;
 
     end
-    samples(i, :) = x;
+    out.samples(i, :) = x;
 
 end
 
-acceptanceRatio = accepted/opts.nSamples;
+out.acceptance = accepted/opts.nSamples;
 
 
 
