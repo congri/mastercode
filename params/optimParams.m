@@ -26,7 +26,7 @@ nChains = 2;
 optim = repmat(optim,2,1);
 %second, tempered Markov chain
 optim(2).MCMC.stepWidth = 10*optim(1).MCMC.stepWidth;
-optim(2).betaTrans = -3;
+optim(2).betaTrans = -1;
 optim(2).betaMax = 1;
 optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
 
@@ -36,7 +36,7 @@ opts.nThermalization = 10;      %thermalization steps
 opts.nSamples = 100;             %number of samples
 
 % only for MALA
-opts.MALA.stepWidth = 1e-3;       %step size parameter
+opts.MALA.stepWidth = 1e-4;       %step size parameter
 opts = repmat(opts,2,1);
 opts(2).MALA.stepWidth = 10*opts(1).MALA.stepWidth;
 

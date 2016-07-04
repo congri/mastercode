@@ -30,6 +30,7 @@ rng('shuffle');     %random number seed based on system time
 
 %preallocation of samples array
 out.samples = zeros(opts.nSamples, size(startValue, 2));
+out.log_p = zeros(opts.nSamples, 1);
 samplesTherm = zeros(opts.nThermalization, size(startValue, 2));
 samplesTherm(1, :) = startValue;
 
@@ -156,9 +157,10 @@ for i = 1:opts.nSamples
         proposalExponent = -.5*(xProp - proposalMean)*invProposalCov*(xProp - proposalMean)';
         
         [log_pProp, d_log_pProp] = log_distribution(xProp);
+
         inverseProposalMean = xProp  + .5*opts.MALA.stepWidth^2*d_log_pProp;
         invProposalExponent = -.5*(x - inverseProposalMean)*invProposalCov*(x - inverseProposalMean)';
-        
+
         Metropolis = exp(invProposalExponent - proposalExponent + log_pProp - log_p);
         
     else
@@ -180,10 +182,12 @@ for i = 1:opts.nSamples
 
     end
     out.samples(i, :) = x;
+    out.log_p(i) = log_p;
 
 end
 
 out.acceptance = accepted/opts.nSamples;
+out.log_pEnd = log_p;
 
 
 

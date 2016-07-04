@@ -9,6 +9,7 @@ addpath('MCMC')
 addpath('FEMgradient')
 addpath('aux')
 addpath('util')
+addpath checks
 params;
 modelType = 'reference';   %which model? reference/multilevel
 sv = true      %save?
@@ -63,6 +64,13 @@ if isempty(gcp('nocreate'))
     parpool('local',N_Threads);
 end
 
+
+%distribution to sample from in M-step
+beta = optim(2).beta;
+log_q{1} = @(input) integrand(input, outFunction, conductivity, physical, domain, 1);
+log_q{2} = @(input) integrand(input, outFunction, conductivity, physical, domain, beta);
+
+
 for nS = 1:nSurrogates
     
     %2 aStart for cold and warm markov chain
@@ -106,12 +114,14 @@ for nS = 1:nSurrogates
         %M-step
         for i = 1:optim(1).nSwaps
             parfor pp = 1:2
-                out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
-                    domain, nSamplesIteration, aStart(pp,:));
-                optim(pp) = out(pp).optim;
+%                 out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
+%                     domain, nSamplesIteration, aStart(pp,:));
+                out(pp) = MCMCsampler(log_q{pp}, aStart(pp,:), opts(pp));
+%                 optim(pp) = out(pp).optim;
                 %Refine step width according to acceptance ratio, tune it to about .7
                 if(out(pp).acceptance) %has to be nonzero
-                    optim(pp).MCMC.stepWidth = (1/.7)*out(pp).acceptance*optim(pp).MCMC.stepWidth;
+                    %optim(pp).MCMC.stepWidth = (1/.7)*out(pp).acceptance*optim(pp).MCMC.stepWidth;
+                    opts(pp).MALA.stepWidth = (1/.7)*out(pp).acceptance*opts(pp).MALA.stepWidth;
                 end
                 while(out(pp).acceptance < .03)
                     warning('Acceptance ratio dropped below .03, resample with .3*stepwidth')
@@ -119,36 +129,43 @@ for nS = 1:nSurrogates
                     out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
                         domain, nSamplesIteration, aStart(pp,:));
                 end
-                chain = pp
-                chainAcceptance = out(pp).acceptance
+
             end
             
             samples(((i - 1)*nSamplesIteration + 1):(i*nSamplesIteration),:) = out(1).samples;
-            logUMean = ((i - 1)/i)*logUMean + (1/i)*out(1).statistics.logUmean
-            q_mean = ((i - 1)/i)*q_mean + (1/i)*out(1).statistics.q_mean;
-            grad_q_mean = ((i - 1)/i)*grad_q_mean + (1/i)*out(1).statistics.grad_q_mean;
-            gradLogUMean = ((i - 1)/i)*gradLogUMean + (1/i)*out(1).statistics.gradLogUMean;
-            stepWidth = optim(1).MCMC.stepWidth
-            stepWidthTempered = optim(2).MCMC.stepWidth
+            lp1 = out(1).log_p(end)
+            lp2 = out(2).log_p(end)
+            acc1 = out(1).acceptance
+            acc2 = out(2).acceptance
+%             logUMean = ((i - 1)/i)*logUMean + (1/i)*out(1).statistics.logUmean
+%             q_mean = ((i - 1)/i)*q_mean + (1/i)*out(1).statistics.q_mean;
+%             grad_q_mean = ((i - 1)/i)*grad_q_mean + (1/i)*out(1).statistics.grad_q_mean;
+%             gradLogUMean = ((i - 1)/i)*gradLogUMean + (1/i)*out(1).statistics.gradLogUMean;
+            stepWidth = opts(1).MALA.stepWidth
+            stepWidthTempered = opts(2).MALA.stepWidth
             
-            swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
-                out(2).pExponent - out(1).pExponent)
+%             swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
+%                 out(2).pExponent - out(1).pExponent)
+            beta
+            swapLogMetropolis = (1/beta)*out(2).log_pEnd + beta*out(1).log_pEnd - out(1).log_pEnd - out(2).log_pEnd
             Metropolis = exp(swapLogMetropolis);
+            Metropolis = 0;
             r = rand;
             if(r < Metropolis)
                 disp('State swapping accepted')
                 aStart(1,:) = out(2).samples(end,:);
-                aStart(2,:) = out(2).samples(end,:);
-                optim(2).betaTrans = optim(2).betaTrans - 4e-1;
+                aStart(2,:) = out(1).samples(end,:);
+                optim(2).betaTrans = optim(2).betaTrans - 0e-1;
                 optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
             else
                 disp('State swapping rejected')
                 aStart(1,:) = out(1).samples(end,:);
-                aStart(2,:) = out(1).samples(end,:);
-                optim(2).betaTrans = optim(2).betaTrans + 4e-1;
+                aStart(2,:) = out(2).samples(end,:);
+                optim(2).betaTrans = optim(2).betaTrans + 0e-1;
                 optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
             end
             beta = optim(2).beta
+            log_q{2} = @(input) integrand(input, outFunction, conductivity, physical, domain, beta);
             
         end
         

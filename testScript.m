@@ -9,7 +9,7 @@ distribution = @(x) testDistribution(x, m, S);
 % gradp = @(x) testDistributionGrad(x, m, S);
 
 opts.method = 'MALA'; %randomWalk, nonlocal or langevin
-opts.nThermalization = 1e2;
+opts.nThermalization = 0e2;
 opts.nSamples = 5e4;
 
 %only for random walk
@@ -25,7 +25,7 @@ opts.nonlocal.propCov = 10*S;
 %only MALA
 opts.MALA.stepWidth = 1.2;
 
-startValue = [-10 -2];
+startValue = [-100 -20];
 
 
 [out] = MCMCsampler(distribution, startValue, opts);

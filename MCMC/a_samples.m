@@ -50,8 +50,10 @@ for i = 1:optim.MCMC.nTherm
         pExponentTemp = -.5*aDiffTemp*conductivity.covar_aInv*aDiffTemp';
 
         Metropolis = exp(invProposalExponent - proposalExponent + ...
-            optim.beta*(logUprop - logU + pExponent - pExponentTemp));
+            optim.beta*(logUprop - logU - pExponent + pExponentTemp));
+        
     elseif(strcmp(optim.samplingMethod,'nonlocal'))
+        
         %propose from p(a|theta) directly
         inputTemp = mvnrnd(conductivity.mu_a, conductivity.covar_a);     
         [logUprop] = outFunction(inputTemp, conductivity, physical, domain);
