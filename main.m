@@ -65,10 +65,8 @@ if isempty(gcp('nocreate'))
 end
 
 
-%distribution to sample from in M-step
+%temperature beta
 beta = optim(2).beta;
-log_q{1} = @(input) integrand(input, outFunction, conductivity, physical, domain, 1);
-log_q{2} = @(input) integrand(input, outFunction, conductivity, physical, domain, beta);
 
 
 for nS = 1:nSurrogates
@@ -91,6 +89,12 @@ for nS = 1:nSurrogates
     converged = 0;
     nIterations = 1;
     while(~converged)
+        
+        %distributions to sample from in M-step
+        log_q{1} = @(input) integrand(input, outFunction, conductivity, physical, domain, 1);
+        log_q{2} = @(input) integrand(input, outFunction, conductivity, physical, domain, beta);
+        
+        
         %Reduce covar_a gradually to make EM more efficient
         if(nIterations <= explorationSteps)
             conductivity.covar_a = explorationFactor^(explorationSteps - nIterations)*fixedcovar_a;
@@ -125,16 +129,17 @@ for nS = 1:nSurrogates
                 end
                 while(out(pp).acceptance < .03)
                     warning('Acceptance ratio dropped below .03, resample with .3*stepwidth')
-                    optim(pp).MCMC.stepWidth = .3*optim(pp).MCMC.stepWidth;
-                    out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
-                        domain, nSamplesIteration, aStart(pp,:));
+%                     optim(pp).MCMC.stepWidth = .3*optim(pp).MCMC.stepWidth;
+%                     out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
+%                         domain, nSamplesIteration, aStart(pp,:));
+                    opts(pp).MALA.stepWidth = .3*opts(pp).MALA.stepWidth;
                 end
 
             end
             
             samples(((i - 1)*nSamplesIteration + 1):(i*nSamplesIteration),:) = out(1).samples;
-            lp1 = out(1).log_p(end)
-            lp2 = out(2).log_p(end)
+            lpm1 = mean(out(1).log_p)
+            lpm2 = mean(out(2).log_p)
             acc1 = out(1).acceptance
             acc2 = out(2).acceptance
 %             logUMean = ((i - 1)/i)*logUMean + (1/i)*out(1).statistics.logUmean
@@ -149,19 +154,18 @@ for nS = 1:nSurrogates
             beta
             swapLogMetropolis = (1/beta)*out(2).log_pEnd + beta*out(1).log_pEnd - out(1).log_pEnd - out(2).log_pEnd
             Metropolis = exp(swapLogMetropolis);
-            Metropolis = 0;
             r = rand;
             if(r < Metropolis)
                 disp('State swapping accepted')
                 aStart(1,:) = out(2).samples(end,:);
                 aStart(2,:) = out(1).samples(end,:);
-                optim(2).betaTrans = optim(2).betaTrans - 0e-1;
+                optim(2).betaTrans = optim(2).betaTrans - 3e-1;
                 optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
             else
                 disp('State swapping rejected')
                 aStart(1,:) = out(1).samples(end,:);
                 aStart(2,:) = out(2).samples(end,:);
-                optim(2).betaTrans = optim(2).betaTrans + 0e-1;
+                optim(2).betaTrans = optim(2).betaTrans + 3e-1;
                 optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
             end
             beta = optim(2).beta

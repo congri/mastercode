@@ -107,24 +107,34 @@ for i = 1:(opts.nThermalization - 1)
 end
 
 acceptance = accepted/opts.nThermalization;
-%refine proposal params after thermalization
-if(strcmp(opts.method, 'randomWalk'))
-    
-    opts.randomWalk.proposalCov = (1/.7)*acceptance*opts.randomWalk.proposalCov;
-    
-elseif(strcmp(opts.method, 'nonlocal'))
-    
-    opts.nonlocal.propMean = mean(samplesTherm);
-    %ATTENTION: fully decorrelated thermalization required!
-    opts.nonlocal.propCov = .2*cov(samplesTherm) + .8*opts.nonlocal.propCov;
-    
-elseif(strcmp(opts.method, 'MALA'))
-    %Metropolis adjusted Langevin algorithm
-    
-    opts.MALA.stepWidth = (1/.7)*acceptance*opts.MALA.stepWidth;
-
-else
-    error('unknown MCMC sampling method')
+if(0)
+    %refine proposal params after thermalization
+    if(strcmp(opts.method, 'randomWalk'))
+        
+        if(acceptance)
+            opts.randomWalk.proposalCov = (1/.7)*acceptance*opts.randomWalk.proposalCov;
+        else
+            opts.randomWalk.proposalCov = .2*opts.randomWalk.proposalCov;
+        end
+        
+    elseif(strcmp(opts.method, 'nonlocal'))
+        
+        opts.nonlocal.propMean = mean(samplesTherm);
+        %ATTENTION: fully decorrelated thermalization required!
+        opts.nonlocal.propCov = .2*cov(samplesTherm) + .8*opts.nonlocal.propCov;
+        
+    elseif(strcmp(opts.method, 'MALA'))
+        %Metropolis adjusted Langevin algorithm
+        
+        if(acceptance)
+            opts.MALA.stepWidth = (1/.7)*acceptance*opts.MALA.stepWidth;
+        else
+            opts.MALA.stepWidth = .2*opts.MALA.stepWidth;
+        end
+        
+    else
+        error('unknown MCMC sampling method')
+    end
 end
 
 

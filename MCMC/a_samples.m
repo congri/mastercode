@@ -27,7 +27,7 @@ assert(~isinf(logU), 'Error: infinite output exponent: zero probability')
 accepted_therm = 0;
 accThermRatio = 0;
 statistics.logUmean = 0;
-statistics.q_mean = 0;
+statistics.log_q_mean = 0;
 grad_q = -(conductivity.covar_a\((input - conductivity.mu_a)'))' + gradLogU;
 statistics.grad_q_mean = grad_q;
 statistics.gradLogUMean = gradLogU;
@@ -149,8 +149,8 @@ for i = 1:nSamplesIteration
     if(mod(i,optim.MCMC.nGap) == 0)
         statistics.logUmean = (j/(j + 1))*statistics.logUmean + (1/(j + 1))*logU;
         p = mvnpdf(input,conductivity.mu_a,conductivity.covar_a);
-        q = exp(logU)*p;
-        statistics.q_mean = (j/(j + 1))*statistics.q_mean + (1/(j + 1))*q;
+        log_q = logU + pExponent;
+        statistics.log_q_mean = (j/(j + 1))*statistics.log_q_mean + (1/(j + 1))*log_q;
         statistics.grad_q_mean = (j/(j + 1))*statistics.grad_q_mean + (1/(j + 1))*grad_q;
         statistics.gradLogUMean = (j/(j + 1))*statistics.gradLogUMean + (1/(j + 1))*gradLogU;
 
