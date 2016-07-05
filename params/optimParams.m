@@ -3,7 +3,7 @@
 optim.nSwaps = 10; %how often propose to swap markov chains
 
 %maximum iterations in opt step
-optim.maxIterations = 70;
+optim.maxIterations = 100;
 %Convergence criteria
 optim.muDifferenceThreshold = 1e-20;
 optim.covarDifferenceThreshold = 1e-4;

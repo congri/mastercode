@@ -11,7 +11,7 @@ addpath('aux')
 addpath('util')
 addpath checks
 params;
-modelType = 'reference';   %which model? reference/multilevel
+modelType = 'multilevel';   %which model? reference/multilevel
 sv = true;      %save?
 dbg = true;     %debug mode?
 if(sv)
