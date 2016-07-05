@@ -2,8 +2,8 @@
 
 plt = 0        %plotu_s - u_f regression?
 ck = 0         %check?
-genTrainingData = 0        %generate new accurate data?
-genTestData = 0            %generate new approximate data?
+genTrainingData = 1        %generate new accurate data?
+genTestData = 1            %generate new approximate data?
 
 nSurrogates = 3;
 

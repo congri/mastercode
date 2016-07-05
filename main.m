@@ -36,7 +36,7 @@ elseif(strcmp(modelType,'multilevel'))
     trainMultilevel;
     etaArray = mvnrnd(postMean, postCov, nSurrogates);
     
-%     error('model trained') %to stop after model training
+    error('model trained') %to stop after model training
     
     
 else
@@ -223,8 +223,7 @@ clear nS converged swapLogMetropolis fixedcovar_a r Metropolis...
 
 if(strcmp(modelType,'multilevel') && dbg)
     %check true output at last surrogate optimum
-    lambda = computeLambda(conductivity.mu_a, domain, conductivity.lambdaCutoff);
-    [logUcheck] = cont_ref_output(lambda, conductivity.mu_a, conductivity, physical, domain);
+    [logUcheck] = cont_ref_output(conductivity.mu_a, conductivity, physical, domain);
     fprintf(1,'\n   log U at surrogate optimum: \n');
     disp(logUcheck);
     clear lambda;
