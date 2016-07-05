@@ -1,5 +1,7 @@
 function [dlogU_da] = gradLogUBya(FEMout, conductivity, domain, physical, a)
 %Computes the gradient d log U(a)/d a
+
+
 [grad, gradF] = gradKgradF(FEMout, conductivity, domain, a);
 
 

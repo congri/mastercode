@@ -11,7 +11,7 @@ addpath('aux')
 addpath('util')
 addpath checks
 params;
-modelType = 'multilevel';   %which model? reference/multilevel
+modelType = 'reference';   %which model? reference/multilevel
 sv = true;      %save?
 dbg = true;     %debug mode?
 if(sv)
@@ -45,9 +45,6 @@ else
     
 end
 
-disp('   Started EM optimization...');
-t = tic;
-
 nIterations = 1;
 %preallocate arrays for data recording
 prealloc;
@@ -72,6 +69,8 @@ end
 %temperature beta
 beta = optim.beta(2);
 
+disp('   Started EM optimization...');
+t = tic;
 
 for nS = 1:nSurrogates
     
@@ -117,7 +116,7 @@ for nS = 1:nSurrogates
         
         %M-step
         for i = 1:optim.nSwaps
-            parfor pp = 1:2
+            for pp = 1:2
                 
                 out(pp) = MCMCsampler(log_q{pp}, aStart(pp,:), opts(pp), nSamplesIteration);
                 %Refine step width according to acceptance ratio, tune it to about .7
