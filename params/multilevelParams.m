@@ -1,9 +1,9 @@
 %params specificially for the multi level model
 
-plt = 1        %plotu_s - u_f regression?
+plt = 0        %plotu_s - u_f regression?
 ck = 0         %check?
-genTrainingData = 1        %generate new accurate data?
-genTestData = 1            %generate new approximate data?
+genTrainingData = 0        %generate new accurate data?
+genTestData = 0            %generate new approximate data?
 
 nSurrogates = 3;
 
@@ -29,9 +29,9 @@ nSlow = domain.nElements;
 
 %training data params
 trainingDataCov = 1*eye(conductivity.dim);
-trainingDataMean = [-2.4948300e+00  -2.3763753e+00  -1.4408964e+00   2.7735040e-01   4.2400721e+00  -4.1972815e+00...
-    -6.5863896e+00  -6.0725103e+00  -4.4857574e+00   2.7885775e+00   1.0392218e+00  -4.2395099e-01  -1.7839429e+00...
-    -6.4501733e+00   2.7563984e-01  -4.1882800e+00  -6.6131163e+00  -6.0641381e+00  -4.4507977e+00   2.8639372e+00...
-    -2.4907763e+00  -2.3980458e+00  -1.2722932e+00   4.7992379e-01   4.2060650e+00];
+trainingDataMean = [-6.1761148e-01  -4.2258421e+00  -3.6725914e+00   1.3968711e-01   4.9445302e+00  -3.8505849e+00...
+    -7.1101403e+00  -6.7356088e+00  -5.0692089e+00   2.6493758e+00  -2.0053591e+00  -4.1576103e+00  -4.4035804e+00...
+    -6.6025675e+00  -2.7257838e-01  -3.8531875e+00  -7.1306576e+00  -6.9422608e+00  -5.1534670e+00   2.9569076e+00...
+    -5.9642452e-01  -4.2334568e+00  -3.7238121e+00   4.5064811e-02   4.8454648e+00];
 
 etaArray = zeros(nSurrogates,bFunOpt.nBasis);

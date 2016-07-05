@@ -157,7 +157,7 @@ if(plt)
         samp = eta*bFunH(approxInf);
         h(i) = plot(approxInf, samp,'k', 'linewidth',1.5);
     end
-    id = plot(-1e5:1e3:1e5, -1e5:1e3:1e5,'r','linewidth',2);
+    id = plot(-1e3:1e2:1e3, -1e3:1e2:1e3,'r','linewidth',2);
     hold off
     box on
     grid on

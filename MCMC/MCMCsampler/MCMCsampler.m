@@ -1,4 +1,4 @@
-function [out] = MCMCsampler(log_distribution, startValue, opts)
+function [out] = MCMCsampler(log_distribution, startValue, opts, nSamples)
 %Standalone MCMC sampler. Pass distribution, starting value and options and
 %get samples
 %By C. Grigo, July 2016
@@ -141,7 +141,7 @@ end
 
 %Actual sampling
 accepted = 0;
-for i = 1:opts.nSamples
+for i = 1:nSamples
 
     if(strcmp(opts.method, 'randomWalk'))
         %Gaussian random walk MCMC

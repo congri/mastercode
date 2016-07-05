@@ -5,26 +5,30 @@ clear all;
 addpath('params')
 addpath('heatFEM')
 addpath('conductivityField')
-addpath('MCMC')
+addpath(genpath('MCMC'))
 addpath('FEMgradient')
 addpath('aux')
 addpath('util')
 addpath checks
 params;
 modelType = 'reference';   %which model? reference/multilevel
-sv = true      %save?
+sv = true;      %save?
+dbg = true;     %debug mode?
+if(sv)
+    disp('   Save data at end of program')
+end
 
 %define output function handle giving log U, grad log U and eventually U
 if(strcmp(modelType,'reference'))
     
-    disp('Reference solver model')
+    disp('   Reference solver model')
     nSurrogates = 1;
     outFunction = @(input, conductivity, physical, domain)...
         cont_ref_output(input, conductivity, physical, domain);
     
 elseif(strcmp(modelType,'multilevel'))
     
-    disp('Multilevel surrogate model')
+    disp('   Multilevel surrogate model')
     multilevelParams;
     addpath('multilevel')
     addpath('multilevel/linearModel')
@@ -32,7 +36,7 @@ elseif(strcmp(modelType,'multilevel'))
     trainMultilevel;
     etaArray = mvnrnd(postMean, postCov, nSurrogates);
     
-    error('model trained') %to stop after model training
+%     error('model trained') %to stop after model training
     
     
 else
@@ -41,7 +45,7 @@ else
     
 end
 
-disp('Started EM optimization...');
+disp('   Started EM optimization...');
 t = tic;
 
 nIterations = 1;
@@ -66,7 +70,7 @@ end
 
 
 %temperature beta
-beta = optim(2).beta;
+beta = optim.beta(2);
 
 
 for nS = 1:nSurrogates
@@ -102,26 +106,20 @@ for nS = 1:nSurrogates
         
         nIterations = nIterations + 1;
         %Total number of MCMC samples in the subsequent step
-        if(nIterations < length(optim(1).MCMC.nSamples))
-            nSamplesIteration = optim(1).MCMC.nSamples(nIterations - 1);
+        if(nIterations < length(opts(1).nSamples))
+            nSamplesIteration = opts(1).nSamples(nIterations - 1);
         else
-            nSamplesIteration = optim(1).MCMC.nSamples(end);
+            nSamplesIteration = opts(1).nSamples(end);
         end
         
         %prealloc
-        samples = zeros(optim(1).nSwaps*nSamplesIteration,conductivity.dim);
-        logUMean = 0;
-        q_mean = 0;
-        grad_q_mean = zeros(1,conductivity.dim);
-        gradLogUMean = zeros(1,conductivity.dim);
+        samples = zeros(optim.nSwaps*nSamplesIteration,conductivity.dim);
         
         %M-step
-        for i = 1:optim(1).nSwaps
+        for i = 1:optim.nSwaps
             parfor pp = 1:2
-%                 out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
-%                     domain, nSamplesIteration, aStart(pp,:));
-                out(pp) = MCMCsampler(log_q{pp}, aStart(pp,:), opts(pp));
-%                 optim(pp) = out(pp).optim;
+                
+                out(pp) = MCMCsampler(log_q{pp}, aStart(pp,:), opts(pp), nSamplesIteration);
                 %Refine step width according to acceptance ratio, tune it to about .7
                 if(out(pp).acceptance) %has to be nonzero
                     %optim(pp).MCMC.stepWidth = (1/.7)*out(pp).acceptance*optim(pp).MCMC.stepWidth;
@@ -129,46 +127,49 @@ for nS = 1:nSurrogates
                 end
                 while(out(pp).acceptance < .03)
                     warning('Acceptance ratio dropped below .03, resample with .3*stepwidth')
-%                     optim(pp).MCMC.stepWidth = .3*optim(pp).MCMC.stepWidth;
-%                     out(pp) = a_samples(outFunction, physical, conductivity, optim(pp),...
-%                         domain, nSamplesIteration, aStart(pp,:));
                     opts(pp).MALA.stepWidth = .3*opts(pp).MALA.stepWidth;
+                    out(pp) = MCMCsampler(log_q{pp}, aStart(pp,:), opts(pp), nSamplesIteration);
                 end
-
+                
             end
             
             samples(((i - 1)*nSamplesIteration + 1):(i*nSamplesIteration),:) = out(1).samples;
-            lpm1 = mean(out(1).log_p)
-            lpm2 = mean(out(2).log_p)
-            acc1 = out(1).acceptance
-            acc2 = out(2).acceptance
-%             logUMean = ((i - 1)/i)*logUMean + (1/i)*out(1).statistics.logUmean
-%             q_mean = ((i - 1)/i)*q_mean + (1/i)*out(1).statistics.q_mean;
-%             grad_q_mean = ((i - 1)/i)*grad_q_mean + (1/i)*out(1).statistics.grad_q_mean;
-%             gradLogUMean = ((i - 1)/i)*gradLogUMean + (1/i)*out(1).statistics.gradLogUMean;
-            stepWidth = opts(1).MALA.stepWidth
-            stepWidthTempered = opts(2).MALA.stepWidth
+            if(dbg)
+                fprintf(1, '\n       log(q)       log(r)\n');
+                disp([mean(out(1).log_p), mean(out(2).log_p)]);
+                fprintf(1, '\n       acc_q       acc_r\n');
+                disp([out(1).acceptance, out(2).acceptance]);
+                fprintf(1, '\n   step width q    step width r\n');
+                disp([opts(1).MALA.stepWidth, opts(2).MALA.stepWidth]);
+                fprintf(1, '\n   temperature beta\n');
+                disp(beta)
+            end
             
-%             swapLogMetropolis = (optim(1).beta - optim(2).beta)*(out(2).logU - out(1).logU + ...
-%                 out(2).pExponent - out(1).pExponent)
-            beta
-            swapLogMetropolis = (1/beta)*out(2).log_pEnd + beta*out(1).log_pEnd - out(1).log_pEnd - out(2).log_pEnd
+            swapLogMetropolis = (1/beta)*out(2).log_pEnd + beta*out(1).log_pEnd - out(1).log_pEnd - out(2).log_pEnd;
             Metropolis = exp(swapLogMetropolis);
             r = rand;
             if(r < Metropolis)
-                disp('State swapping accepted')
+                
+                if(dbg)
+                    fprintf(1,'\n   State swapping accepted, acceptance ratio:\n');
+                    disp(Metropolis);
+                end;
                 aStart(1,:) = out(2).samples(end,:);
                 aStart(2,:) = out(1).samples(end,:);
-                optim(2).betaTrans = optim(2).betaTrans - 3e-1;
-                optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
+                optim.betaTrans(2) = optim.betaTrans(2) - 3e-1;
+                optim.beta(2) = optim.betaMax(2)*normcdf(optim.betaTrans(2));
             else
-                disp('State swapping rejected')
+                
+                if(dbg)
+                    fprintf(1,'\n   State swapping rejected, acceptance ratio:\n');
+                    disp(Metropolis)
+                end
                 aStart(1,:) = out(1).samples(end,:);
                 aStart(2,:) = out(2).samples(end,:);
-                optim(2).betaTrans = optim(2).betaTrans + 3e-1;
-                optim(2).beta = optim(2).betaMax*normcdf(optim(2).betaTrans);
+                optim.betaTrans(2) = optim.betaTrans(2) + 3e-1;
+                optim.beta(2) = optim.betaMax(2)*normcdf(optim.betaTrans(2));
             end
-            beta = optim(2).beta
+            beta = optim.beta(2);
             log_q{2} = @(input) integrand(input, outFunction, conductivity, physical, domain, beta);
             
         end
@@ -184,26 +185,26 @@ for nS = 1:nSurrogates
         %         mu = conductivity.mu_a(component)
         %         conductivity.mu_a = mu_a_old;
         %         conductivity.mu_a(component) = mu; clear mu;
-        conductivity.mu_a
+        
+        fprintf(1,'\n   mu_a \n');
+        disp(conductivity.mu_a)
+        fprintf(1,'\n   Number of iterations \n');
+        disp(nIterations)
         
         covar_a_old = conductivity.covar_a;
         
         muArray(nIterations,:) = conductivity.mu_a;
-        logUmeanArray(nIterations) = logUMean;
-        q_meanArray(nIterations) = q_mean;
-        grad_q_meanArray(nIterations,:) = grad_q_mean;
-        gradLogUMeanArray(nIterations,:) = gradLogUMean;
         
         %convergence condition
         n_diff_mu_EM = norm(mu_a_old - conductivity.mu_a);
-        mu_convergence = n_diff_mu_EM/conductivity.dim
-        nIterations
+        mu_convergence = n_diff_mu_EM/conductivity.dim;
+        
         n_diff_Sigma_EM = norm(covar_a_old - conductivity.covar_a);
-        muDiffArray(nIterations) = n_diff_mu_EM;
-        if(((mu_convergence < optim(1).muDifferenceThreshold &&...
-                n_diff_Sigma_EM/(conductivity.dim^2) < optim(1).covarDifferenceThreshold) &&...
+        muDiffArray(nIterations - 1) = n_diff_mu_EM;
+        if(((mu_convergence < optim.muDifferenceThreshold &&...
+                n_diff_Sigma_EM/(conductivity.dim^2) < optim.covarDifferenceThreshold) &&...
                 nIterations > explorationSteps)...
-                || nIterations > optim(1).maxIterations)
+                || nIterations > optim.maxIterations)
             converged = 1;
         end
         clear n_diff_Sigma_EM n_diff_mu_EM mu_convergence;
@@ -220,10 +221,12 @@ clear nS converged swapLogMetropolis fixedcovar_a r Metropolis...
 
 
 
-if(strcmp(modelType,'multilevel'))
+if(strcmp(modelType,'multilevel') && dbg)
     %check true output at last surrogate optimum
     lambda = computeLambda(conductivity.mu_a, domain, conductivity.lambdaCutoff);
-    [logUcheck] = cont_ref_output(lambda, conductivity.mu_a, conductivity, physical, domain)
+    [logUcheck] = cont_ref_output(lambda, conductivity.mu_a, conductivity, physical, domain);
+    fprintf(1,'\n   log U at surrogate optimum: \n');
+    disp(logUcheck);
     clear lambda;
 end
 
