@@ -26,9 +26,11 @@ if(strcmp(domain.basisFunctionType,'polynomial'))
 elseif(strcmp(domain.basisFunctionType,'gauss'))%performance optimized
     grad_kl = zeros(4, 4, domain.nElements);
 
+    exponent = domain.exponent';
+    off = conductivity.localStiffnessOffset;
     for l = 1:conductivity.dim
         for k = 1:domain.nElements
-            grad_kl(:,:,k) = exp(a(l) + domain.exponent(k,l)')*conductivity.localStiffnessOffset;
+            grad_kl(:,:,k) = exp(a(l) + exponent(l, k))*off;
         end
         grad(l).K = get_glob_stiff2(domain, grad_kl);
         gradF(:,l) = get_glob_force_gradient(domain, grad_kl);

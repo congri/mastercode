@@ -35,11 +35,21 @@ clear Sg i j;
 [domain.Equations, domain.LocalNode] = get_equations(domain.nElements, domain.lm);
 domain.kIndex = sub2ind([4 4 domain.nElements], domain.LocalNode(:,1), domain.LocalNode(:,2), domain.LocalNode(:,3));
 domain.essNode = false(domain.nElements, 4);
+domain.Tb = zeros(4, domain.nElements);
+k = 1;
 for e = 1:domain.nElements
     for i = 1:4
-        domain.essNode(e, i) = ~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i)));
+        if(~isnan(domain.nodalCoordinates(4,domain.globalNodeNumber(e,i))))
+            %domain.essNodes holds element number and local node number of
+            %essential nodes
+            domain.essNodes(k, 1) = e;  
+            domain.essNodes(k, 2) = i;
+            domain.Tb(i, e) = domain.nodalCoordinates(4,domain.globalNodeNumber(e,i));
+            k = k + 1;
+        end
     end
 end
+clear k;
 %lc gives node coordinates, taking in element number and local node
 %number
 domain.lc = get_loc_coord(domain);

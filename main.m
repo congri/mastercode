@@ -116,7 +116,7 @@ for nS = 1:nSurrogates
         
         %M-step
         for i = 1:optim.nSwaps
-            for pp = 1:2
+            parfor pp = 1:2
                 
                 out(pp) = MCMCsampler(log_q{pp}, aStart(pp,:), opts(pp), nSamplesIteration);
                 %Refine step width according to acceptance ratio, tune it to about .7
