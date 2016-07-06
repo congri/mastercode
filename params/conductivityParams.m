@@ -2,8 +2,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-conductivity.Nx = 20; %number of basis functions in x-direction
-conductivity.Ny = 20; %number of basis functions in y-direction
+conductivity.Nx = domain.Nx; %number of basis functions in x-direction
+conductivity.Ny = domain.Ny; %number of basis functions in y-direction
 component = 6; %optimization component
 
 %start parameters for distribution on a
@@ -30,6 +30,8 @@ elseif(strcmp(domain.basisFunctionType, 'gauss'))
         D(:,:,i) = eye(2); %only isotropic material
     end
     conductivity.localStiffnessOffset = get_loc_stiff(1, domain.lc, D(:,:,1));
+elseif(strcmp(domain.basisFunctionType, 'GP'))
+    %no need of offset local stiffness
 else
     error('Unknown basis function for lambda')
 end

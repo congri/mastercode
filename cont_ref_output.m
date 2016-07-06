@@ -32,7 +32,7 @@ end
 gradcheck = 0;
 if(gradcheck)
     disp('Perform finite difference gradient check')
-    delta_a = 1e-4;
+    delta_a = 1e-3;
     FDgrad_dlogU_da = zeros(1,conductivity.dim);
     for d = 1:conductivity.dim
         deltaVec = zeros(1,conductivity.dim);
@@ -49,6 +49,7 @@ if(gradcheck)
         outputDiff = testLogU - logU;
         FDgrad_dlogU_da(d) = outputDiff/delta_a;
     end
+    gradLogU
     FDgrad_dlogU_da
     lambdaDiff = norm(lambda - lambdaTest)
     relgrad = FDgrad_dlogU_da./gradLogU

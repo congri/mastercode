@@ -4,7 +4,6 @@ function [dlogU_da] = gradLogUBya(FEMout, conductivity, domain, physical, a)
 
 [grad, gradF] = gradKgradF(FEMout, conductivity, domain, a);
 
-
 %compute (d/dT) log U(T), where T are natural node temperatures
 NEquations = length(FEMout.naturalTemperatures);
 %derivative of measurement temperature by natural node temperatures

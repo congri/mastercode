@@ -9,6 +9,7 @@ gradF = zeros(SK(1), conductivity.dim);
 l = 1;
 
 if(strcmp(domain.basisFunctionType,'polynomial'))
+    
     grad_kl = zeros(4, 4, domain.nElements, conductivity.dim);
     for i = 1:conductivity.Nx
         for j = 1:conductivity.Ny
@@ -23,7 +24,9 @@ if(strcmp(domain.basisFunctionType,'polynomial'))
             l = l + 1;
         end   
     end
+
 elseif(strcmp(domain.basisFunctionType,'gauss'))%performance optimized
+    
     grad_kl = zeros(4, 4, domain.nElements);
 
     exponent = domain.exponent';
@@ -34,6 +37,17 @@ elseif(strcmp(domain.basisFunctionType,'gauss'))%performance optimized
         end
         grad(l).K = get_glob_stiff2(domain, grad_kl);
         gradF(:,l) = get_glob_force_gradient(domain, grad_kl);
+    end
+
+elseif(strcmp(domain.basisFunctionType,'GP'))%performance optimized
+    
+    grad_kl = zeros(4, 4, domain.nElements);
+
+    for l = 1:conductivity.dim
+        grad_kl(:,:,l) = FEMout.localStiffness(:,:,l);
+        grad(l).K = get_glob_stiff2(domain, grad_kl);
+        gradF(:,l) = get_glob_force_gradient(domain, grad_kl);
+        grad_kl = zeros(4, 4, domain.nElements);
     end
 
 else

@@ -9,7 +9,9 @@ xG = repmat(xG,sqrt(conductivity.dim),1);
 yG = (ceil((1:conductivity.dim)/sqrt(conductivity.dim))/sqrt(conductivity.dim) - 1/(2*sqrt(conductivity.dim)))';
 domain.gaussLocations = [xG yG];
 domain.gaussVariance = ((1/4)*(1/conductivity.Nx))^2; %ignore if basis function type is polynomial
-domain.basisFunctionValues = basis_functions(conductivity, domain);
+if(~strcmp(domain.basisFunctionType, 'GP'))
+    domain.basisFunctionValues = basis_functions(conductivity, domain);
+end
 clear xG yG;
 
 xDiffSq = zeros(1,domain.nElements);

@@ -4,7 +4,7 @@ clear all;
 %load params
 addpath('params')
 addpath('heatFEM')
-addpath('conductivityField')
+addpath(genpath('conductivityField'))
 addpath(genpath('MCMC'))
 addpath('FEMgradient')
 addpath('aux')
@@ -12,7 +12,7 @@ addpath('util')
 addpath checks
 params;
 modelType = 'reference';   %which model? reference/multilevel
-sv = true;      %save?
+sv = false;      %save?
 dbg = true;     %debug mode?
 if(sv)
     disp('   Save data at end of program')
@@ -72,6 +72,15 @@ beta = optim.beta(2);
 disp('   Started EM optimization...');
 t = tic;
 
+
+%start value for theta
+theta = [-6 -6];
+thetaArray = theta;
+log_sigma_f2 = 0;
+K = GPcov(domain.X2, domain.Y2, 'ardSE', [theta, log_sigma_f2]);
+Kinv = inv(K);
+
+
 for nS = 1:nSurrogates
     
     %2 aStart for cold and warm markov chain
@@ -94,8 +103,8 @@ for nS = 1:nSurrogates
     while(~converged)
         
         %distributions to sample from in M-step
-        log_q{1} = @(input) integrand(input, outFunction, conductivity, physical, domain, 1);
-        log_q{2} = @(input) integrand(input, outFunction, conductivity, physical, domain, beta);
+        log_q{1} = @(input) qGP(input, outFunction, conductivity, physical, domain, beta, Kinv);
+        log_q{2} = @(input) qGP(input, outFunction, conductivity, physical, domain, beta, Kinv);
         
         
         %Reduce covar_a gradually to make EM more efficient
@@ -114,7 +123,7 @@ for nS = 1:nSurrogates
         %prealloc
         samples = zeros(optim.nSwaps*nSamplesIteration,conductivity.dim);
         
-        %M-step
+        %M-step: generate samples
         for i = 1:optim.nSwaps
             parfor pp = 1:2
                 
@@ -134,7 +143,7 @@ for nS = 1:nSurrogates
             
             samples(((i - 1)*nSamplesIteration + 1):(i*nSamplesIteration),:) = out(1).samples;
             if(dbg)
-                fprintf(1, '\n       log(q)       log(r)\n');
+                fprintf(1, '\n       <log(q)>       <log(r)>\n');
                 disp([mean(out(1).log_p), mean(out(2).log_p)]);
                 fprintf(1, '\n       acc_q       acc_r\n');
                 disp([out(1).acceptance, out(2).acceptance]);
@@ -169,48 +178,34 @@ for nS = 1:nSurrogates
                 optim.beta(2) = optim.betaMax(2)*normcdf(optim.betaTrans(2));
             end
             beta = optim.beta(2);
-            log_q{2} = @(input) integrand(input, outFunction, conductivity, physical, domain, beta);
+            log_q{2} = @(input) qGP(input, outFunction, conductivity, physical, domain, beta, Kinv);
             
-        end
+        end     %samples generated
+
         
+
+
+
+        K_dK = @(lsq) GPcov(domain.X2, domain.Y2, 'ardSE', [lsq, log_sigma_f2]);
+
+        thetaOld = theta;
+        [theta] = Mstep(samples, K_dK, theta)
+        thetaArray = [thetaArray; theta]
+        K = GPcov(domain.X2, domain.Y2, 'ardSE', [theta, log_sigma_f2]);
+        Kinv = inv(K);
         
-        mu_a_old = conductivity.mu_a;
-        
-        %Regularization
-        conductivity.mu_a = (conductivity.covar_aInv + ...
-            conductivity.muRegularization*eye(conductivity.dim))\(conductivity.covar_aInv*(mean(samples,1))');
-        conductivity.mu_a = conductivity.mu_a';
-        %only keep a single component of mu this time
-        %         mu = conductivity.mu_a(component)
-        %         conductivity.mu_a = mu_a_old;
-        %         conductivity.mu_a(component) = mu; clear mu;
-        
-        fprintf(1,'\n   mu_a \n');
-        disp(conductivity.mu_a)
         fprintf(1,'\n   Number of iterations \n');
         disp(nIterations)
         
-        covar_a_old = conductivity.covar_a;
         
-        muArray(nIterations,:) = conductivity.mu_a;
-        
-        %convergence condition
-        n_diff_mu_EM = norm(mu_a_old - conductivity.mu_a);
-        mu_convergence = n_diff_mu_EM/conductivity.dim;
-        
-        n_diff_Sigma_EM = norm(covar_a_old - conductivity.covar_a);
-        muDiffArray(nIterations - 1) = n_diff_mu_EM;
-        if(((mu_convergence < optim.muDifferenceThreshold &&...
-                n_diff_Sigma_EM/(conductivity.dim^2) < optim.covarDifferenceThreshold) &&...
-                nIterations > explorationSteps)...
-                || nIterations > optim.maxIterations)
+        if(norm(theta - thetaOld) < 1e-5)
             converged = 1;
         end
         clear n_diff_Sigma_EM n_diff_mu_EM mu_convergence;
     end
     clear out;
     
-    muOptSurr(nS,:) = conductivity.mu_a;
+%     muOptSurr(nS,:) = conductivity.mu_a;
     
 end
 clear nS converged swapLogMetropolis fixedcovar_a r Metropolis...

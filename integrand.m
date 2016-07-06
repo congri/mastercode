@@ -1,5 +1,5 @@
 function [log_q, d_log_q] = integrand(input, outFunction, conductivity, physical, domain, beta)
-%Integrandto sample from, i.e. q(z) = U(z)*p(z)
+%Integrand to sample from, i.e. q(z) = U(z)*p(z)
     
     
 

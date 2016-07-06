@@ -58,6 +58,9 @@ domain.id = get_id(domain.nodalCoordinates);
 %Coordinates of centers of finite elements
 domain.coord_mat = get_el_coord(domain);
 domain.coordMatSquared = domain.coord_mat(1,:)'*domain.coord_mat(2,:);
+%squared distances of element centers in x and y direction
+domain.X2 = sq_dist(domain.coord_mat(1,:));
+domain.Y2 = sq_dist(domain.coord_mat(2,:));
 domain.nEquations = max(domain.nodalCoordinates(3,:));
 %Total number of equations
 neq = double(max(domain.nodalCoordinates(3,:)));
@@ -70,4 +73,4 @@ for k = 1:domain.nElements
 end
 clear k i neq;
 
-domain.basisFunctionType = 'gauss';    %polynomial or gauss
+domain.basisFunctionType = 'GP';    %polynomial, gauss or GP
