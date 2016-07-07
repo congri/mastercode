@@ -131,7 +131,7 @@ for nS = 1:nSurrogates
                 %Refine step width according to acceptance ratio, tune it to about .7
                 if(out(pp).acceptance) %has to be nonzero
                     %optim(pp).MCMC.stepWidth = (1/.7)*out(pp).acceptance*optim(pp).MCMC.stepWidth;
-                    opts(pp).MALA.stepWidth = (1/.7)*out(pp).acceptance*opts(pp).MALA.stepWidth;
+                    opts(pp).MALA.stepWidth = (1/.6)*out(pp).acceptance*opts(pp).MALA.stepWidth;
                 end
                 while(out(pp).acceptance < .03)
                     warning('Acceptance ratio dropped below .03, resample with .3*stepwidth')

@@ -1,14 +1,14 @@
 %plot script for GP conductivities
 
 clear all;
-n_el = 15;
+n_el = 20;
 x = linspace(1/(2*n_el), 1 - 1/(2*n_el), n_el);
 [X2, X1] = meshgrid(x);
 x = [X1(:) X2(:)]';
 
 log_sigma_f2 = 0;
-log_l1 = -3.8606;
-log_l2 = -4.1711;
+log_l1 = -5.412;
+log_l2 = -4.7058;
 l1 = sqrt(exp(log_l1))
 l2 = sqrt(exp(log_l2))
 params = [log_l1, log_l2, log_sigma_f2];
@@ -41,6 +41,7 @@ for i = 1:4
     xlabel('x')
     ylabel('y')
     zlabel('\lambda')
+    set(s(i), 'fontsize', 18)
     c = colorbar;
     ylabel(c, '\lambda')
     axis square

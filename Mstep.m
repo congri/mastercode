@@ -19,7 +19,7 @@ function [paramsOpt] = Mstep(samples, K_dK, paramsOpt)
     
     RMoffset = 30;
     if norm(dL) > 0
-        stepSize = [RMoffset/norm(dL) RMoffset/norm(dL)];
+        stepSize = .1*[RMoffset/norm(dL) RMoffset/norm(dL)];
     else
         stepSize = [1 1];
     end
@@ -27,7 +27,7 @@ function [paramsOpt] = Mstep(samples, K_dK, paramsOpt)
     converged = false;
     iterations = 0;
     maxIterations = 200;
-    convThreshold = 1e-4;
+    convThreshold = 1e-2;
     while(~converged)
         dLold = dL;
         for i = 1:size(paramsOpt, 2)
@@ -38,14 +38,17 @@ function [paramsOpt] = Mstep(samples, K_dK, paramsOpt)
         for i = 1:size(paramsOpt, 2)
             %decrease stepSize if there is a sign change
             if(dL(i)*dLold(i) < 0)
-                stepSize(i) = .8*stepSize(i);
+                stepSize(i) = .5*stepSize(i);
             end
         end
         %slightly increase stepsize if gradient is not changing a lot
-        if(norm(dL - dLold)/norm(dL) < 1e-3)
-            dL = 1.1*dL;
+%         gradChange = norm(dL - dLold)/norm(dL)
+        if(norm(dL - dLold)/norm(dL) < 1.5)
+            stepSize = 1.3*stepSize;
         end
+%         stepSize
         dL
+
         
         
         step = (stepSize/(RMoffset + iterations)).*dL;
@@ -59,7 +62,7 @@ function [paramsOpt] = Mstep(samples, K_dK, paramsOpt)
         [K, grad] = K_dK(paramsOpt);
         iterations = iterations + 1;
         
-        ndL = norm(dL)
+%         ndL = norm(dL)
         if(iterations > maxIterations || norm(dL) < convThreshold)
             converged = true;
         end
