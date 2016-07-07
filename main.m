@@ -12,7 +12,7 @@ addpath('util')
 addpath checks
 params;
 modelType = 'reference';   %which model? reference/multilevel
-sv = false;      %save?
+sv = true;      %save?
 dbg = true;     %debug mode?
 if(sv)
     disp('   Save data at end of program')
@@ -198,7 +198,8 @@ for nS = 1:nSurrogates
         disp(nIterations)
         
         
-        if(norm(theta - thetaOld) < 1e-5)
+%         if(norm(theta - thetaOld) < 1e-5)
+        if(nIterations > optim.maxIterations)
             converged = 1;
         end
         clear n_diff_Sigma_EM n_diff_mu_EM mu_convergence;
@@ -228,7 +229,7 @@ computationTime = toc(t); clear t;
 if(sv)
     disp('saving...')
     filename = datestr(now,30);
-    dir = './data/dim64/all';
+    dir = './data/GP/20';
     mkdir(dir);
     filename = strcat(dir,'/optim',modelType,filename);
     save(filename,'-v7.3');
