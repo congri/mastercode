@@ -45,8 +45,10 @@ elseif(strcmp(domain.basisFunctionType,'GP'))%performance optimized
 
     for l = 1:conductivity.dim
         grad_kl(:,:,l) = FEMout.localStiffness(:,:,l);
-        grad(l).K = get_glob_stiff2(domain, grad_kl);
-        gradF(:,l) = get_glob_force_gradient(domain, grad_kl);
+        grad(l).K = get_glob_stiffGP(domain, FEMout.localStiffness(:,:,l), l);
+        gradF(:,l) = get_glob_force_gradientGP(domain, grad_kl, l);
+%         Ftest = get_glob_force_gradient(domain, grad_kl);
+%         diffF = gradF(:,l) - Ftest
         grad_kl = zeros(4, 4, domain.nElements);
     end
 

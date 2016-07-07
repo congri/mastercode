@@ -61,7 +61,7 @@ domain.coordMatSquared = domain.coord_mat(1,:)'*domain.coord_mat(2,:);
 %squared distances of element centers in x and y direction
 domain.X2 = sq_dist(domain.coord_mat(1,:));
 domain.Y2 = sq_dist(domain.coord_mat(2,:));
-domain.nEquations = max(domain.nodalCoordinates(3,:));
+domain.nEquations = double(max(domain.nodalCoordinates(3,:)));
 %Total number of equations
 neq = double(max(domain.nodalCoordinates(3,:)));
 domain.Kinit = spalloc(neq,neq,3*neq);
@@ -74,3 +74,17 @@ end
 clear k i neq;
 
 domain.basisFunctionType = 'GP';    %polynomial, gauss or GP
+
+if(strcmp(domain.basisFunctionType, 'GP'))
+    
+    for e = 1:domain.nElements
+        localNodeInit = 1:4;
+        equations = domain.lm(e,localNodeInit);
+        equations = equations(equations > 0);
+        localNode = localNodeInit(equations > 0);
+        [eq1, eq2] = meshgrid(equations);
+        domain.GPequations(e).eq1 = eq1(:);
+        domain.GPequations(e).eq2 = eq2(:);
+        domain.GPequations(e).localNode = localNode;
+    end
+end
