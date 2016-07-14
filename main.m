@@ -189,7 +189,8 @@ for nS = 1:nSurrogates
         K_dK = @(lsq) GPcov(domain.X2, domain.Y2, 'ardSE', [lsq, log_sigma_f2]);
 
         thetaOld = theta;
-        [theta] = Mstep(samples, K_dK, theta)
+        decSamples = samples(1:opts(1).nGap:end, :);    %decorrelation
+        [theta] = Mstep(decSamples, K_dK, theta)
         thetaArray = [thetaArray; theta]
         K = GPcov(domain.X2, domain.Y2, 'ardSE', [theta, log_sigma_f2]);
         Kinv = inv(K);

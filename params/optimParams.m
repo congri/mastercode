@@ -19,9 +19,10 @@ optim.beta = [1 optim.betaMax*normcdf(optim.betaTrans(2))];
 opts.method = 'MALA';              %proposal type: randomWalk, nonlocal or MALA
 opts.nThermalization = 0;      %thermalization steps
 opts.nSamples = 200;             %number of samples
+opts.nGap = 20;
 
 % only for MALA
-opts.MALA.stepWidth = 3e-1;       %step size parameter
+opts.MALA.stepWidth = 1e-1;       %step size parameter
 opts = repmat(opts,2,1);
 opts(2).MALA.stepWidth = opts(1).MALA.stepWidth;
 

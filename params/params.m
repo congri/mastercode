@@ -10,7 +10,7 @@ optimParams;
 %specify boundary conditions
 boundaryConditions;
 %FEM domain specification
-domain.nElements = 400; %number of finite elements
+domain.nElements = 625; %number of finite elements
 domainParams;
 %specify target for optimization
 target;

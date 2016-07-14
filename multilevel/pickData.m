@@ -3,9 +3,9 @@ function [approx_uOut, inputDataOut] = pickData(approx_uIn, inputDataIn, nData, 
 
 [approx_uIn, index] = sort(approx_uIn);
 inputDataIn = inputDataIn(index,:);
-% lu = length(approx_uIn);
-% approx_uIn = approx_uIn((1 - upperFraction)*lu:end);
-% inputDataIn = inputDataIn((1 - upperFraction)*lu:end,:);
+lu = length(approx_uIn);
+approx_uIn = approx_uIn((1 - upperFraction)*lu:end);
+inputDataIn = inputDataIn((1 - upperFraction)*lu:end,:);
 
 hi = max(approx_uIn);
 lo = min(approx_uIn);
