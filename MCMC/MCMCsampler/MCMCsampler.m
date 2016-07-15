@@ -1,4 +1,4 @@
-function [out] = MCMCsampler(log_distribution, startValue, opts, nSamples)
+function [out] = MCMCsampler(log_distribution, startValue, opts)
 %Standalone MCMC sampler. Pass distribution, starting value and options and
 %get samples
 %By C. Grigo, July 2016
@@ -141,13 +141,14 @@ end
 
 %Actual sampling
 accepted = 0;
-for i = 1:nSamples
+for i = 1:opts.nSamples
 
     if(strcmp(opts.method, 'randomWalk'))
         %Gaussian random walk MCMC
 
         xProp = mvnrnd(x, opts.randomWalk.proposalCov);
-        Metropolis = exp(log_distribution(xProp) - log_distribution(x));
+        log_pProp = log_distribution(xProp);
+        Metropolis = exp(log_pProp - log_distribution(x));
 
     elseif(strcmp(opts.method, 'nonlocal'))
         %"Nonlocal" proposal distribution

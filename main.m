@@ -10,10 +10,11 @@ addpath('FEMgradient')
 addpath('aux')
 addpath('util')
 addpath checks
+addpath rom
 params;
-modelType = 'reference';   %which model? reference/multilevel
+modelType = 'rom';   %which model? reference/multilevel/rom
 sv = true;      %save?
-dbg = true;     %debug mode?
+dbg = true;     %debug mode? with more output
 if(sv)
     disp('   Save data at end of program')
 end
