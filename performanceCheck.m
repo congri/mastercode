@@ -1,55 +1,17 @@
-
-
 tic
-for a = 1:500
-f = zeros(4,domain.nElements);
-Tb = zeros(4,1);
-Tbflag = 0;
-for e = 1:domain.nElements
-    %Boundary value temperature of element e
-    for i = 1:4
-        if(domain.essNode(e,i))
-            
-            Tb(i) = domain.nodalCoordinates(4,domain.globalNodeNumber(e,i));
-            Tbflag = true;
-            
-        end
+for n= 1:10000
+    for i = 1:10000
+        
+        p(i) = rand;
+        
     end
-    
-    
-    if(Tbflag)
-        f(:,e) = -kGradient(:,:,e)*Tb;
-        Tb = zeros(4,1);
-        Tbflag = false;
-    end
-end
 end
 t1 = toc
 
+A = 10*rand(1000) -5;
 
 tic
-for a = 1:500
-f = zeros(4,domain.nElements);
-Tb = zeros(4,1);
-Tbflag = 0;
-en = domain.essNode;
-for e = 1:domain.nElements
-    %Boundary value temperature of element e
-    for i = 1:4
-        if(en(e, i))
-            
-            Tb(i) = domain.nodalCoordinates(4,domain.globalNodeNumber(e,i));
-            Tbflag = true;
-            
-        end
-    end
-    
-    
-    if(Tbflag)
-        f(:,e) = -kGradient(:,:,e)*Tb;
-        Tb = zeros(4,1);
-        Tbflag = false;
-    end
+for n = 1:50
+    B = inv(A);
 end
-
 t2 = toc

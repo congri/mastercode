@@ -1,4 +1,4 @@
-#temporary files
+﻿#temporary files
 *.m~
 
 #directories
@@ -7,3 +7,6 @@ data
 #data files
 *.txt
 *.mat
+
+#log files
+*.log
